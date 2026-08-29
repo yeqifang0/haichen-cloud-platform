@@ -267,49 +267,91 @@ onMounted(load)
 .welcome-banner {
   background: linear-gradient(135deg, #1677ff 0%, #0052d9 100%);
   border-radius: 12px;
-  padding: 24px 28px;
+  padding: clamp(16px, 2.5vw, 28px) clamp(18px, 3vw, 28px);
   color: #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   margin-bottom: 16px;
 }
+.welcome-text {
+  flex: 1;
+  min-width: 0; /* 防止 flex item 溢出 */
+}
 .welcome-text h2 {
-  font-size: 22px;
+  font-size: clamp(16px, 2.2vw, 22px);
   margin-bottom: 6px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: normal; /* 允许自然换行 */
+  overflow-wrap: break-word;
+  word-break: normal; /* 不硬断词 */
 }
 .welcome-text p {
-  font-size: 13px;
+  font-size: clamp(12px, 1.5vw, 13px);
   opacity: 0.9;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 .welcome-stats {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: clamp(12px, 2vw, 24px);
+  flex-shrink: 0;
 }
 .ws-item {
   text-align: center;
+  white-space: nowrap;
 }
 .ws-label {
   display: block;
-  font-size: 12px;
+  font-size: clamp(11px, 1.3vw, 12px);
   opacity: 0.85;
   margin-bottom: 4px;
 }
 .ws-value {
-  font-size: 24px;
+  font-size: clamp(18px, 2.2vw, 24px);
   font-weight: 600;
+  line-height: 1.2;
 }
 .ws-value small {
-  font-size: 12px;
+  font-size: clamp(10px, 1.2vw, 12px);
   font-weight: normal;
   opacity: 0.85;
 }
 .ws-divider {
   width: 1px;
-  height: 36px;
+  height: clamp(24px, 4vw, 36px);
   background: rgba(255, 255, 255, 0.3);
 }
+
+/* 小屏（<= 768px）：banner 改为垂直堆叠，避免横向挤压导致文字竖排 */
+@media (max-width: 768px) {
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+  }
+  .welcome-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .ws-divider {
+    height: 28px;
+  }
+}
+/* 超小屏（<= 480px）：统计项再横向压缩一点 */
+@media (max-width: 480px) {
+  .welcome-stats {
+    gap: 8px;
+  }
+  .ws-divider {
+    height: 24px;
+  }
+}
+
 .kpi-row {
   margin-bottom: 0;
 }

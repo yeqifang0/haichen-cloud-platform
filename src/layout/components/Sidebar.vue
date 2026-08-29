@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar-container" :class="{ collapsed: appStore.sidebarCollapsed }">
     <div class="logo">
-      <div class="logo-icon">海</div>
+      <div class="logo-icon">HC</div>
       <span v-show="!appStore.sidebarCollapsed" class="logo-text">海辰智汇云平台</span>
     </div>
     <el-scrollbar class="menu-scroll">
@@ -68,8 +68,10 @@ const activeMenu = computed(() => route.path)
   border-radius: 8px;
   background: linear-gradient(135deg, #1677ff, #0052d9);
   color: #fff;
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;

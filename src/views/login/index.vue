@@ -8,7 +8,7 @@
     <div class="login-box">
       <div class="login-left">
         <div class="brand">
-          <div class="brand-logo">海</div>
+          <div class="brand-logo">HC</div>
           <h1>海辰智汇云平台</h1>
         </div>
         <p class="brand-sub">上海海辰智储科技有限公司 · 统一管理后台</p>
@@ -204,8 +204,10 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
   backdrop-filter: blur(10px);
 }
 .brand h1 {
