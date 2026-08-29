@@ -8,6 +8,9 @@ const STORAGE_KEY = 'haichen_db_v1'
 const LATENCY = 200
 
 // 初始化/加载持久化数据
+// 注意：loadDB 内部不能调用 saveDB，否则在 `let data = loadDB()` 求值期间
+// 触发 TDZ（saveDB 会写 data，而 data 尚未完成初始化），抛出
+// "Cannot access 'data' before initialization" 导致整个应用白屏。
 function loadDB() {
   const saved = localStorage.getItem(STORAGE_KEY)
   if (saved) {
@@ -22,7 +25,8 @@ function loadDB() {
   for (const [k, v] of Object.entries(db)) {
     fresh[k] = Array.isArray(v) ? JSON.parse(JSON.stringify(v)) : JSON.parse(JSON.stringify(v))
   }
-  saveDB(fresh)
+  // 首次初始化时直接写入 localStorage（不走 saveDB，避免 TDZ）
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh))
   return fresh
 }
 

@@ -6,6 +6,8 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  // 部署到 GitHub Pages 子路径 https://yeqifang0.github.io/haichen-cloud-platform/
+  base: '/haichen-cloud-platform/',
   plugins: [
     vue(),
     AutoImport({ resolvers: [ElementPlusResolver()] }),

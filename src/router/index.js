@@ -1,5 +1,9 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Layout from '@/layout/index.vue'
+
+// 注意：Layout 使用懒加载而非静态 import，以打破
+// router/index.js <-> Layout <-> Sidebar(引用 asyncRoutes) 的循环依赖，
+// 否则生产构建后会触发 TDZ 错误 "Cannot access 'X' before initialization"。
+const Layout = () => import('@/layout/index.vue')
 
 export const asyncRoutes = [
   {
