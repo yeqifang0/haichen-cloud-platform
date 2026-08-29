@@ -1,13 +1,29 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 export const useAppStore = defineStore('app', () => {
   const sidebarCollapsed = ref(localStorage.getItem('haichen_sidebar') === '1')
   const tabs = ref([])
+  const isMobile = ref(false)
+
+  // 小屏自动折叠 sidebar（抽屉模式）
+  function checkMobile() {
+    const mobile = window.innerWidth <= 768
+    isMobile.value = mobile
+    if (mobile) sidebarCollapsed.value = true
+  }
+
+  // 在 app 初始化时挂 resize 监听
+  if (typeof window !== 'undefined') {
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+  }
 
   function toggleSidebar() {
     sidebarCollapsed.value = !sidebarCollapsed.value
-    localStorage.setItem('haichen_sidebar', sidebarCollapsed.value ? '1' : '0')
+    if (!isMobile.value) {
+      localStorage.setItem('haichen_sidebar', sidebarCollapsed.value ? '1' : '0')
+    }
   }
 
   function addTab(route) {
@@ -31,5 +47,5 @@ export const useAppStore = defineStore('app', () => {
     tabs.value = []
   }
 
-  return { sidebarCollapsed, tabs, toggleSidebar, addTab, removeTab, clearTabs }
+  return { sidebarCollapsed, tabs, isMobile, toggleSidebar, addTab, removeTab, clearTabs }
 })

@@ -96,4 +96,12 @@ const activeMenu = computed(() => route.path)
 :deep(.el-menu-item:hover) {
   background-color: rgba(255, 255, 255, 0.08) !important;
 }
+
+/* ========== 小屏（<= 768px）：sidebar 始终保持完整宽度，由父级 transform 控制抽屉 ========== */
+@media (max-width: 768px) {
+  .sidebar-container,
+  .sidebar-container.collapsed {
+    width: 260px !important;
+  }
+}
 </style>
