@@ -55,7 +55,7 @@
           <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin">登 录</el-button>
         </el-form>
         <div class="quick-accounts">
-          <div class="qa-title">快速登录（演示账号）：</div>
+          <div class="qa-title">快速登录</div>
           <div class="qa-list">
             <span v-for="a in accounts" :key="a.username" class="qa-item" @click="fillAccount(a)">
               {{ a.label }}

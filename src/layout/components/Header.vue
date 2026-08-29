@@ -149,22 +149,48 @@ async function handleRefresh() {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 .avatar {
   background: var(--primary-gradient);
   color: #fff;
   font-weight: 600;
+  flex-shrink: 0;
 }
 .user-meta {
   line-height: 1.2;
+  /* 防止文字被挤压竖排：flex-shrink + 允许截断 */
+  flex-shrink: 0;
+  min-width: 0;
 }
 .user-name {
   font-size: 14px;
   color: #303133;
   font-weight: 500;
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .user-role {
   font-size: 12px;
   color: #909399;
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ========== 小屏（<= 768px）：隐藏用户文字，只留头像 ========== */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 12px;
+  }
+  .header-right {
+    gap: 10px;
+  }
+  .user-meta {
+    display: none;
+  }
 }
 </style>
