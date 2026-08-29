@@ -137,14 +137,17 @@ async function handleLogin() {
 
 <style scoped>
 .login-container {
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #0a1929 0%, #001529 50%, #002140 100%);
   position: relative;
-  overflow: hidden;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .login-bg .bg-circle {
   position: absolute;
@@ -176,7 +179,8 @@ async function handleLogin() {
 .login-box {
   display: flex;
   width: 880px;
-  height: 520px;
+  max-width: 100%;
+  min-height: 520px;
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
@@ -242,6 +246,7 @@ async function handleLogin() {
 }
 .login-right {
   width: 400px;
+  flex-shrink: 0;
   padding: 48px 40px;
   display: flex;
   flex-direction: column;
@@ -275,6 +280,7 @@ async function handleLogin() {
   cursor: pointer;
   user-select: none;
   font-style: italic;
+  flex-shrink: 0;
 }
 .login-options {
   display: flex;
@@ -311,9 +317,62 @@ async function handleLogin() {
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
+  white-space: nowrap;
 }
 .qa-item:hover {
   background: #1677ff;
   color: #fff;
+}
+
+/* ========== 移动端（<= 768px）：隐藏左侧品牌区，右侧登录表单占满 ========== */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 0;
+    align-items: stretch;
+  }
+  .login-box {
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    flex-direction: column;
+  }
+  .login-left {
+    /* 移动端隐藏左侧品牌区，省出空间给登录表单 */
+    display: none;
+  }
+  .login-right {
+    width: 100%;
+    flex-shrink: 1;
+    padding: 32px 24px 40px;
+    /* 允许滚动，确保底部快速登录按钮可见 */
+    overflow-y: auto;
+  }
+  .login-right h2 {
+    font-size: 22px;
+  }
+  .login-tip {
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+  .captcha-code {
+    width: 72px;
+    font-size: 15px;
+  }
+  .login-options {
+    font-size: 12px;
+  }
+  .quick-accounts {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+  .qa-list {
+    gap: 6px;
+  }
+  .qa-item {
+    padding: 5px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
 }
 </style>
