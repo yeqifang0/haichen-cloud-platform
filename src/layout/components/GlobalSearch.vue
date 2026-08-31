@@ -109,7 +109,10 @@ function typeColor(t) {
 .header-icon {
   font-size: 18px;
   cursor: pointer;
-  color: #595959;
+  color: var(--text-secondary);
+}
+.header-icon:hover {
+  color: #4096ff;
 }
 .search-panel {
   margin: -8px -4px;
@@ -123,10 +126,10 @@ function typeColor(t) {
   display: flex;
   gap: 8px;
   padding: 10px;
-  background: #f0f7ff;
+  background: rgba(22, 119, 255, 0.1);
   border-radius: 6px;
   font-size: 13px;
-  color: #303133;
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 .result-item {
@@ -134,19 +137,20 @@ function typeColor(t) {
   align-items: center;
   gap: 8px;
   padding: 8px 4px;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
   font-size: 13px;
+  color: var(--text-primary);
 }
 .result-item:hover {
-  background: #fafafa;
+  background: rgba(22, 119, 255, 0.1);
 }
 .result-text {
   flex: 1;
 }
 .quick-tip p {
   font-size: 12px;
-  color: #909399;
+  color: var(--text-secondary);
   margin-bottom: 8px;
 }
 .quick-tag {

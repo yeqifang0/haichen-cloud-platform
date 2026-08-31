@@ -49,13 +49,13 @@ function closeTab(tab) {
 
 <style scoped>
 .tabs-view {
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
+  background: var(--bg-header);
+  border-top: 1px solid var(--border-subtle);
   height: 38px;
   display: flex;
   align-items: center;
   padding: 0 12px;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 .tabs-inner {
   display: flex;
@@ -68,21 +68,23 @@ function closeTab(tab) {
   align-items: center;
   gap: 4px;
   padding: 4px 12px;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--border-card);
   border-radius: 4px;
   font-size: 13px;
-  color: #606266;
+  color: var(--text-secondary);
   cursor: pointer;
-  background: #fff;
+  background: var(--bg-card);
   transition: all 0.2s;
 }
 .tab-item:hover {
-  color: #1677ff;
+  color: #4096ff;
+  border-color: rgba(22, 119, 255, 0.5);
 }
 .tab-item.active {
-  background: #1677ff;
+  background: var(--primary-gradient);
   color: #fff;
-  border-color: #1677ff;
+  border-color: var(--primary-color);
+  box-shadow: 0 2px 6px rgba(22, 119, 255, 0.35);
 }
 .close-icon {
   font-size: 12px;

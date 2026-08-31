@@ -116,12 +116,13 @@ async function handleRefresh() {
 <style scoped>
 .header {
   height: 56px;
-  background: #fff;
+  background: var(--bg-header);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
 }
 .header-left {
@@ -137,12 +138,20 @@ async function handleRefresh() {
 .collapse-btn {
   font-size: 20px;
   cursor: pointer;
-  color: #595959;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+.collapse-btn:hover {
+  color: #4096ff;
 }
 .header-icon {
   font-size: 18px;
   cursor: pointer;
-  color: #595959;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+.header-icon:hover {
+  color: #4096ff;
 }
 .user-info {
   display: flex;
@@ -150,22 +159,28 @@ async function handleRefresh() {
   gap: 8px;
   cursor: pointer;
   flex-shrink: 0;
+  padding: 4px 8px 4px 4px;
+  border-radius: 20px;
+  transition: background 0.2s;
+}
+.user-info:hover {
+  background: rgba(22, 119, 255, 0.1);
 }
 .avatar {
   background: var(--primary-gradient);
   color: #fff;
   font-weight: 600;
   flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(22, 119, 255, 0.4);
 }
 .user-meta {
   line-height: 1.2;
-  /* 防止文字被挤压竖排：flex-shrink + 允许截断 */
   flex-shrink: 0;
   min-width: 0;
 }
 .user-name {
   font-size: 14px;
-  color: #303133;
+  color: var(--text-primary);
   font-weight: 500;
   white-space: nowrap;
   max-width: 100px;
@@ -174,7 +189,7 @@ async function handleRefresh() {
 }
 .user-role {
   font-size: 12px;
-  color: #909399;
+  color: var(--text-secondary);
   white-space: nowrap;
   max-width: 100px;
   overflow: hidden;

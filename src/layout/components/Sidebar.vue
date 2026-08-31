@@ -44,11 +44,12 @@ const activeMenu = computed(() => route.path)
 .sidebar-container {
   width: 230px;
   height: 100%;
-  background: #001529;
+  background: var(--bg-sidebar);
   transition: width 0.28s;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid var(--border-subtle);
 }
 .sidebar-container.collapsed {
   width: 64px;
@@ -59,14 +60,15 @@ const activeMenu = computed(() => route.path)
   align-items: center;
   padding: 0 16px;
   gap: 10px;
-  background: linear-gradient(135deg, #002140, #001529);
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border-subtle);
   flex-shrink: 0;
 }
 .logo-icon {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #1677ff, #0052d9);
+  background: var(--primary-gradient);
   color: #fff;
   font-size: 16px;
   font-weight: 900;
@@ -76,9 +78,10 @@ const activeMenu = computed(() => route.path)
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(22, 119, 255, 0.5);
 }
 .logo-text {
-  color: #fff;
+  color: var(--text-primary);
   font-size: 16px;
   font-weight: 600;
   white-space: nowrap;
@@ -88,13 +91,32 @@ const activeMenu = computed(() => route.path)
 }
 :deep(.el-menu) {
   border-right: none;
+  background: var(--bg-sidebar) !important;
+}
+:deep(.el-menu-item) {
+  color: var(--text-regular) !important;
+}
+:deep(.el-sub-menu__title) {
+  color: var(--text-regular) !important;
 }
 :deep(.el-menu-item.is-active) {
-  background: #1677ff !important;
+  background: var(--primary-gradient) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.35);
 }
 :deep(.el-sub-menu__title:hover),
 :deep(.el-menu-item:hover) {
-  background-color: rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(22, 119, 255, 0.12) !important;
+  color: #4096ff !important;
+}
+:deep(.el-sub-menu .el-menu-item) {
+  background: var(--bg-sidebar) !important;
+}
+:deep(.el-sub-menu .el-menu-item:hover) {
+  background: rgba(22, 119, 255, 0.12) !important;
+}
+:deep(.el-sub-menu .el-menu-item.is-active) {
+  background: var(--primary-gradient) !important;
 }
 
 /* ========== 小屏（<= 768px）：sidebar 始终保持完整宽度，由父级 transform 控制抽屉 ========== */

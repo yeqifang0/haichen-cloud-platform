@@ -274,19 +274,35 @@ onMounted(load)
   align-items: center;
   gap: 16px;
   margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(22, 119, 255, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+.welcome-banner::before {
+  /* 科技感：微弱网格纹理 */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
 }
 .welcome-text {
   flex: 1;
-  min-width: 0; /* 防止 flex item 溢出 */
+  min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 .welcome-text h2 {
   font-size: clamp(16px, 2.2vw, 22px);
   margin-bottom: 6px;
   font-weight: 600;
   line-height: 1.4;
-  white-space: normal; /* 允许自然换行 */
+  white-space: normal;
   overflow-wrap: break-word;
-  word-break: normal; /* 不硬断词 */
+  word-break: normal;
 }
 .welcome-text p {
   font-size: clamp(12px, 1.5vw, 13px);
@@ -299,6 +315,8 @@ onMounted(load)
   align-items: center;
   gap: clamp(12px, 2vw, 24px);
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 .ws-item {
   text-align: center;
@@ -356,19 +374,21 @@ onMounted(load)
   margin-bottom: 0;
 }
 .kpi-card {
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 10px;
   padding: 18px;
   display: flex;
   align-items: center;
   gap: 14px;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.06);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 2px 12px rgba(0, 10, 30, 0.4);
   margin-bottom: 16px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 .kpi-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 21, 41, 0.1);
+  box-shadow: 0 6px 20px rgba(0, 10, 30, 0.5);
+  border-color: rgba(22, 119, 255, 0.5);
 }
 .kpi-icon {
   width: 52px;
@@ -385,18 +405,18 @@ onMounted(load)
 }
 .kpi-label {
   font-size: 13px;
-  color: #909399;
+  color: var(--text-secondary);
 }
 .kpi-value {
   font-size: 26px;
   font-weight: 700;
-  color: #303133;
+  color: var(--text-primary);
   line-height: 1.3;
 }
 .kpi-value small {
   font-size: 13px;
   font-weight: normal;
-  color: #909399;
+  color: var(--text-secondary);
   margin-left: 2px;
 }
 .kpi-trend {
@@ -406,10 +426,10 @@ onMounted(load)
   gap: 2px;
 }
 .kpi-trend.up {
-  color: #52c41a;
+  color: #73d13d;
 }
 .kpi-trend.down {
-  color: #ff4d4f;
+  color: #ff7875;
 }
 .chart-card {
   border-radius: 10px;
@@ -421,7 +441,7 @@ onMounted(load)
 }
 .card-title {
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
 }
 .wh-list {
   display: flex;
@@ -440,12 +460,13 @@ onMounted(load)
 .wh-name {
   font-size: 14px;
   font-weight: 500;
+  color: var(--text-primary);
 }
 .wh-meta {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: #909399;
+  color: var(--text-secondary);
   margin-top: 6px;
 }
 </style>

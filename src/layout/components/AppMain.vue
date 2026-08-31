@@ -15,6 +15,6 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #f0f2f5;
+  background: var(--bg-page);
 }
 </style>
