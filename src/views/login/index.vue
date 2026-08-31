@@ -298,11 +298,11 @@ async function handleLogin() {
 .quick-accounts {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px dashed #ebeef5;
+  border-top: 1px dashed rgba(22, 119, 255, 0.25);
 }
 .qa-title {
   font-size: 12px;
-  color: #909399;
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 10px;
 }
 .qa-list {
@@ -312,15 +312,15 @@ async function handleLogin() {
 }
 .qa-item {
   padding: 4px 10px;
-  background: #f0f7ff;
-  color: #1677ff;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
   white-space: nowrap;
 }
 .qa-item:hover {
-  background: #1677ff;
+  background: rgba(22, 119, 255, 0.6);
   color: #fff;
 }
 
