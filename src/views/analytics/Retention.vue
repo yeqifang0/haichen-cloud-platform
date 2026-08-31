@@ -4,8 +4,7 @@
     <el-card shadow="hover" class="mb-16">
       <div class="page-title">
         <el-icon><Box /></el-icon>
-        <span>滞留时长分析</span>
-        <el-tag size="small" type="warning" effect="plain" style="margin-left: 8px">滞留超180天触发预警，超360天标记长期滞留</el-tag>
+        <span>{{ $t('analytics.retentionTitle') }}</span>
       </div>
     </el-card>
 
@@ -17,7 +16,7 @@
             <el-icon :size="24"><component :is="s.icon" /></el-icon>
           </div>
           <div class="stat-info">
-            <div class="stat-label">{{ s.label }}</div>
+            <div class="stat-label">{{ t(s.label) }}</div>
             <div class="stat-value">{{ s.value }}<small>{{ s.unit }}</small></div>
           </div>
         </div>
@@ -28,49 +27,49 @@
     <el-card shadow="hover" class="mt-16">
       <div class="toolbar">
         <div class="sort-bar">
-          <span class="sort-label">排序方式：</span>
+          <span class="sort-label">{{ $t('analytics.retentionDays') }}：</span>
           <el-radio-group v-model="sort" @change="load">
-            <el-radio-button value="time">按滞留天数</el-radio-button>
-            <el-radio-button value="stock">按库存数量</el-radio-button>
+            <el-radio-button value="time">{{ $t('analytics.retentionDays') }}</el-radio-button>
+            <el-radio-button value="stock">{{ $t('analytics.qty') }}</el-radio-button>
           </el-radio-group>
         </div>
-        <el-tag type="info" size="small" effect="plain">共 {{ list.length }} 个品种</el-tag>
+        <el-tag type="info" size="small" effect="plain">{{ $t('analytics.qty') }}: {{ list.length }}</el-tag>
       </div>
       <el-table :data="list" v-loading="loading" stripe border @row-click="openDetail" row-key="sku">
         <el-table-column prop="sku" label="SKU" width="140" />
-        <el-table-column prop="name" label="货品名称" min-width="220" show-overflow-tooltip />
-        <el-table-column prop="warehouse" label="仓库" width="140" />
-        <el-table-column prop="inDate" label="入库日期" width="130" />
-        <el-table-column label="滞留天数" width="120" align="center">
+        <el-table-column prop="name" :label="$t('field.name')" min-width="220" show-overflow-tooltip />
+        <el-table-column prop="warehouse" :label="$t('warehouse_m.name')" width="140" />
+        <el-table-column prop="inDate" :label="$t('analytics.lastIn')" width="130" />
+        <el-table-column :label="$t('analytics.retentionDays')" width="120" align="center">
           <template #default="{ row }">
-            <span :style="{ color: daysColor(row.status), fontWeight: 600 }">{{ row.days }} 天</span>
+            <span :style="{ color: daysColor(row.status), fontWeight: 600 }">{{ row.days }} {{ $t('analytics.retentionDays') }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stock" label="库存数量" width="120" align="right" />
-        <el-table-column prop="lastOut" label="最后出库日期" width="140" />
-        <el-table-column label="状态" width="120" align="center">
+        <el-table-column prop="stock" :label="$t('analytics.qty')" width="120" align="right" />
+        <el-table-column prop="lastOut" :label="$t('analytics.lastOut')" width="140" />
+        <el-table-column :label="$t('field.status')" width="120" align="center">
           <template #default="{ row }">
-            <el-tag :type="statusType(row.status)" size="small" effect="light">{{ row.status }}</el-tag>
+            <el-tag :type="statusType(row.status)" size="small" effect="light">{{ translateStatus(row.status) }}</el-tag>
           </template>
         </el-table-column>
       </el-table>
-      <div class="hint">点击任意行可查看滞留详情</div>
+      <div class="hint">{{ $t('analytics.retentionDetail') }}</div>
     </el-card>
 
     <!-- 详情抽屉 -->
-    <el-drawer v-model="drawer" title="滞留详情" size="420px">
+    <el-drawer v-model="drawer" :title="$t('analytics.retentionDetail')" size="420px">
       <el-descriptions v-if="current" :column="1" border>
         <el-descriptions-item label="SKU">{{ current.sku }}</el-descriptions-item>
-        <el-descriptions-item label="货品名称">{{ current.name }}</el-descriptions-item>
-        <el-descriptions-item label="仓库">{{ current.warehouse }}</el-descriptions-item>
-        <el-descriptions-item label="入库日期">{{ current.inDate }}</el-descriptions-item>
-        <el-descriptions-item label="滞留天数">
-          <span :style="{ color: daysColor(current.status), fontWeight: 600 }">{{ current.days }} 天</span>
+        <el-descriptions-item :label="$t('field.name')">{{ current.name }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('warehouse_m.name')">{{ current.warehouse }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('analytics.lastIn')">{{ current.inDate }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('analytics.retentionDays')">
+          <span :style="{ color: daysColor(current.status), fontWeight: 600 }">{{ current.days }} {{ $t('analytics.retentionDays') }}</span>
         </el-descriptions-item>
-        <el-descriptions-item label="库存数量">{{ current.stock }} 件</el-descriptions-item>
-        <el-descriptions-item label="最后出库日期">{{ current.lastOut }}</el-descriptions-item>
-        <el-descriptions-item label="状态">
-          <el-tag :type="statusType(current.status)" size="small" effect="light">{{ current.status }}</el-tag>
+        <el-descriptions-item :label="$t('analytics.qty')">{{ current.stock }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('analytics.lastOut')">{{ current.lastOut }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('field.status')">
+          <el-tag :type="statusType(current.status)" size="small" effect="light">{{ translateStatus(current.status) }}</el-tag>
         </el-descriptions-item>
       </el-descriptions>
     </el-drawer>
@@ -79,7 +78,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { analyticsApi } from '@/api'
+
+const { t, te } = useI18n()
 
 const list = ref([])
 const loading = ref(false)
@@ -87,14 +89,24 @@ const sort = ref('time')
 const drawer = ref(false)
 const current = ref(null)
 
+const STATUS_MAP = {
+  '正常': '',
+  '滞留预警': 'analytics.retentionWarn',
+  '长期滞留': 'analytics.retentionWarn'
+}
+function translateStatus(s) {
+  const key = STATUS_MAP[s]
+  return key && te(key) ? t(key) : s
+}
+
 const stats = computed(() => {
   const total = list.value.length
   const warn = list.value.filter((i) => i.status === '滞留预警').length
   const long = list.value.filter((i) => i.status === '长期滞留').length
   return [
-    { label: '总品种数', value: total, unit: '个', icon: 'Files', color: '#1677ff' },
-    { label: '滞留预警', value: warn, unit: '个', icon: 'Warning', color: '#faad14' },
-    { label: '长期滞留', value: long, unit: '个', icon: 'AlarmClock', color: '#ff4d4f' }
+    { label: 'analytics.qty', value: total, unit: '', icon: 'Files', color: '#1677ff' },
+    { label: 'analytics.retentionWarn', value: warn, unit: '', icon: 'Warning', color: '#faad14' },
+    { label: 'analytics.retentionWarn', value: long, unit: '', icon: 'AlarmClock', color: '#ff4d4f' }
   ]
 })
 

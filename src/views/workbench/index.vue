@@ -1,39 +1,39 @@
 <template>
   <div class="workbench page-container">
     <div class="wb-banner">
-      <h2>个人工作台</h2>
+      <h2>{{ $t('bench.title') }}</h2>
       <p>{{ userStore.userInfo?.name }}（{{ userStore.roles?.[0] }}）· {{ now }}</p>
     </div>
     <el-row :gutter="16">
       <el-col :xs="24" :lg="12">
         <el-card shadow="hover" class="wb-card">
-          <template #header><div class="card-header"><span class="card-title">待办事项</span><el-tag>{{ todos.length }}</el-tag></div></template>
+          <template #header><div class="card-header"><span class="card-title">{{ $t('bench.todo') }}</span><el-tag>{{ todos.length }}</el-tag></div></template>
           <div class="todo-list">
             <div v-for="t in todos" :key="t.id" class="todo-item">
-              <el-tag :type="t.urgent ? 'danger' : 'warning'" size="small" effect="plain">{{ t.urgent ? '紧急' : '普通' }}</el-tag>
+              <el-tag :type="t.urgent ? 'danger' : 'warning'" size="small" effect="plain">{{ t.urgent ? $t('alert.severe') : $t('alert.warn') }}</el-tag>
               <div class="todo-body">
                 <div class="todo-title">{{ t.title }}</div>
                 <div class="todo-meta">{{ t.module }} · {{ t.time }}</div>
               </div>
-              <el-button text type="primary" size="small" @click="go(t.path)">去处理</el-button>
+              <el-button text type="primary" size="small" @click="go(t.path)">{{ $t('btn.view') }}</el-button>
             </div>
-            <el-empty v-if="!todos.length" description="暂无待办" :image-size="60" />
+            <el-empty v-if="!todos.length" :description="$t('bench.noTodo')" :image-size="60" />
           </div>
         </el-card>
       </el-col>
       <el-col :xs="24" :lg="12">
         <el-card shadow="hover" class="wb-card">
-          <template #header><div class="card-header"><span class="card-title">我的预警</span><el-tag type="danger">{{ alerts.length }}</el-tag></div></template>
+          <template #header><div class="card-header"><span class="card-title">{{ $t('bench.myAlert') }}</span><el-tag type="danger">{{ alerts.length }}</el-tag></div></template>
           <div class="alert-list">
             <div v-for="a in alerts" :key="a.id" class="alert-item">
-              <el-tag :type="a.level === '严重' ? 'danger' : 'warning'" size="small">{{ a.level }}</el-tag>
+              <el-tag :type="a.level === '严重' ? 'danger' : 'warning'" size="small">{{ translateAlertLevel(a.level) }}</el-tag>
               <div class="alert-body">
                 <div class="alert-title">{{ a.title }}</div>
                 <div class="alert-meta">{{ a.type }} · {{ a.createTime }}</div>
               </div>
-              <el-button text type="primary" size="small" @click="go('/logistics/alerts')">查看</el-button>
+              <el-button text type="primary" size="small" @click="go('/logistics/alerts')">{{ $t('btn.view') }}</el-button>
             </div>
-            <el-empty v-if="!alerts.length" description="暂无预警" :image-size="60" />
+            <el-empty v-if="!alerts.length" :description="$t('bench.noAlert')" :image-size="60" />
           </div>
         </el-card>
       </el-col>
@@ -42,7 +42,7 @@
     <el-row :gutter="16" class="mt-16">
       <el-col :xs="24" :lg="12">
         <el-card shadow="hover" class="wb-card">
-          <template #header><span class="card-title">快捷入口</span></template>
+          <template #header><span class="card-title">{{ $t('menu.smartQuery') }}</span></template>
           <div class="shortcut-grid">
             <div v-for="s in shortcuts" :key="s.path" class="shortcut-item" @click="go(s.path)">
               <div class="shortcut-icon" :style="{ background: s.color + '1a', color: s.color }">
@@ -55,7 +55,7 @@
       </el-col>
       <el-col :xs="24" :lg="12">
         <el-card shadow="hover" class="wb-card">
-          <template #header><span class="card-title">最近操作</span></template>
+          <template #header><span class="card-title">{{ $t('sys.logTitle') }}</span></template>
           <el-timeline>
             <el-timeline-item v-for="l in logs" :key="l.id" :timestamp="l.time" placement="top" :type="l.status === '失败' ? 'danger' : 'success'">
               <div class="log-action">{{ l.action }}</div>
@@ -69,11 +69,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/stores'
 import { logisticsApi, warehouseApi, systemApi } from '@/api'
 
+const { t } = useI18n()
 const router = useRouter()
 const userStore = useUserStore()
 const now = new Date().toLocaleString('zh-CN')
@@ -81,16 +83,22 @@ const todos = ref([])
 const alerts = ref([])
 const logs = ref([])
 
-const shortcuts = [
-  { label: '仓库监控', path: '/warehouse/monitor', icon: 'Monitor', color: '#1677ff' },
-  { label: '新增单据', path: '/warehouse/orders', icon: 'Document', color: '#52c41a' },
-  { label: '物流追踪', path: '/logistics/track', icon: 'Van', color: '#722ed1' },
-  { label: '异常处理', path: '/logistics/alerts', icon: 'Warning', color: '#ff4d4f' },
-  { label: '智能查询', path: '/logistics/smart-query', icon: 'ChatDotRound', color: '#13c2c2' },
-  { label: '调度指派', path: '/dispatch/list', icon: 'Operation', color: '#faad14' },
-  { label: '运营看板', path: '/analytics/purchase', icon: 'DataAnalysis', color: '#eb2f96' },
-  { label: '系统设置', path: '/system/config', icon: 'Setting', color: '#595959' }
-]
+const shortcuts = computed(() => [
+  { label: t('menu.warehouseMonitor'), path: '/warehouse/monitor', icon: 'Monitor', color: '#1677ff' },
+  { label: t('btn.add') + t('menu.orderList'), path: '/warehouse/orders', icon: 'Document', color: '#52c41a' },
+  { label: t('menu.tracking'), path: '/logistics/track', icon: 'Van', color: '#722ed1' },
+  { label: t('alert.detail'), path: '/logistics/alerts', icon: 'Warning', color: '#ff4d4f' },
+  { label: t('menu.smartQuery'), path: '/logistics/smart-query', icon: 'ChatDotRound', color: '#13c2c2' },
+  { label: t('btn.assign'), path: '/dispatch/list', icon: 'Operation', color: '#faad14' },
+  { label: t('menu.dashboard'), path: '/analytics/purchase', icon: 'DataAnalysis', color: '#eb2f96' },
+  { label: t('sys.configTitle'), path: '/system/config', icon: 'Setting', color: '#595959' }
+])
+
+function translateAlertLevel(level) {
+  if (level === '严重') return t('alert.severe')
+  if (level === '警告') return t('alert.warn')
+  return level
+}
 
 function go(path) {
   router.push(path)

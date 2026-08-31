@@ -3,8 +3,7 @@
     <el-card shadow="hover" class="head-card">
       <div class="head-banner">
         <div class="head-text">
-          <h2><el-icon><Connection /></el-icon> HC002 多源数据接入管理</h2>
-          <p>HC002 已接入 12 类数据源，日均处理 5TB，覆盖海运 / 空运 / 陆运全链路物流数据融合</p>
+          <h2><el-icon><Connection /></el-icon> HC002 {{ $t('dataSource.title') }}</h2>
         </div>
       </div>
     </el-card>
@@ -15,7 +14,7 @@
         <div class="stat-card" :class="c.cls">
           <div class="stat-icon"><el-icon :size="26"><component :is="c.icon" /></el-icon></div>
           <div class="stat-info">
-            <div class="stat-label">{{ c.label }}</div>
+            <div class="stat-label">{{ t(c.labelKey) }}</div>
             <div class="stat-value">{{ c.value }}<small>{{ c.unit }}</small></div>
           </div>
         </div>
@@ -27,25 +26,24 @@
         <el-card shadow="hover">
           <template #header>
             <div class="card-header">
-              <span class="card-title">数据源列表</span>
-              <el-tag type="primary" effect="plain" size="small">实时接入状态</el-tag>
+              <span class="card-title">{{ $t('dataSource.title') }}</span>
             </div>
           </template>
           <el-table :data="list" v-loading="loading" stripe border>
-            <el-table-column prop="name" label="数据源名称" min-width="200" show-overflow-tooltip />
-            <el-table-column prop="type" label="类型" width="90">
-              <template #default="{ row }"><el-tag :type="typeColor(row.type)" size="small" effect="plain">{{ row.type }}</el-tag></template>
+            <el-table-column prop="name" :label="$t('dataSource.name')" min-width="200" show-overflow-tooltip />
+            <el-table-column prop="type" :label="$t('field.type')" width="90">
+              <template #default="{ row }"><el-tag :type="typeColor(row.type)" size="small" effect="plain">{{ translateDsType(row.type) }}</el-tag></template>
             </el-table-column>
-            <el-table-column prop="status" label="状态" width="90">
-              <template #default="{ row }"><el-tag :type="sourceStatusColor(row.status)" size="small">{{ row.status }}</el-tag></template>
+            <el-table-column prop="status" :label="$t('field.status')" width="90">
+              <template #default="{ row }"><el-tag :type="sourceStatusColor(row.status)" size="small">{{ translateDsStatus(row.status) }}</el-tag></template>
             </el-table-column>
-            <el-table-column prop="latency" label="延迟" width="100">
+            <el-table-column prop="latency" :label="$t('dataSource.latency')" width="100">
               <template #default="{ row }">
                 <span :class="{ 'lat-warn': isLatencyHigh(row.latency) }">{{ row.latency }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="dailyVolume" label="日处理量" width="110" />
-            <el-table-column prop="accuracy" label="准确率" width="100">
+            <el-table-column prop="dailyVolume" :label="$t('dataSource.dailyVolume')" width="110" />
+            <el-table-column prop="accuracy" :label="$t('dataSource.accuracy')" width="100">
               <template #default="{ row }">
                 <span :style="{ color: accuracyColor(row.accuracy) }">{{ row.accuracy }}</span>
               </template>
@@ -57,16 +55,15 @@
         <el-card shadow="hover" class="chart-card">
           <template #header>
             <div class="card-header">
-              <span class="card-title">各运输类型数据源占比</span>
-              <el-tag type="success" effect="plain" size="small">HC002 融合视图</el-tag>
+              <span class="card-title">{{ $t('field.type') }}</span>
             </div>
           </template>
           <BaseChart :option="pieOption" height="320px" />
           <div class="legend-summary">
             <div v-for="t in typeSummary" :key="t.name" class="legend-item">
               <span class="legend-dot" :style="{ background: t.color }"></span>
-              <span class="legend-name">{{ t.name }}</span>
-              <span class="legend-count">{{ t.count }} 个</span>
+              <span class="legend-name">{{ translateDsType(t.name) }}</span>
+              <span class="legend-count">{{ t.count }}</span>
               <span class="legend-pct">{{ t.pct }}%</span>
             </div>
           </div>
@@ -78,18 +75,30 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseChart from '@/components/BaseChart.vue'
 import { analyticsApi } from '@/api'
+
+const { t } = useI18n()
 
 const list = ref([])
 const loading = ref(false)
 
 const TYPE_COLORS = { 海运: '#1677ff', 空运: '#13c2c2', 陆运: '#722ed1' }
 
+const DS_TYPE_MAP = { '海运': 'transport.sea', '空运': 'transport.air', '陆运': 'transport.road' }
+function translateDsType(s) { return DS_TYPE_MAP[s] ? t(DS_TYPE_MAP[s]) : s }
+
+const DS_STATUS_MAP = { '在线': 'dataSource.online', '降级': 'dataSource.degraded', '离线': 'common.noData' }
+function translateDsStatus(s) {
+  const map = { '在线': 'dataSource.online', '降级': 'dataSource.degraded', '离线': 'common.noData' }
+  return map[s] ? t(map[s]) : s
+}
+
 const statCards = computed(() => [
-  { key: 'count', label: '接入数据源数', value: list.value.length, unit: '个', icon: 'Connection', cls: 'primary' },
-  { key: 'volume', label: '日均处理量', value: '5.2', unit: 'TB', icon: 'DataAnalysis', cls: 'success' },
-  { key: 'latency', label: '平均查询延迟', value: '142', unit: 'ms', icon: 'Timer', cls: 'warning' }
+  { key: 'count', labelKey: 'dataSource.title', value: list.value.length, unit: '', icon: 'Connection', cls: 'primary' },
+  { key: 'volume', labelKey: 'dataSource.dailyVolume', value: '5.2', unit: 'TB', icon: 'DataAnalysis', cls: 'success' },
+  { key: 'latency', labelKey: 'dataSource.latency', value: '142', unit: 'ms', icon: 'Timer', cls: 'warning' }
 ])
 
 const typeSummary = computed(() => {
@@ -102,7 +111,7 @@ const typeSummary = computed(() => {
 })
 
 const pieOption = computed(() => ({
-  tooltip: { trigger: 'item', formatter: '{b}: {c} 个 ({d}%)' },
+  tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
   legend: { bottom: 0, icon: 'circle' },
   color: ['#1677ff', '#13c2c2', '#722ed1'],
   series: [
@@ -114,7 +123,7 @@ const pieOption = computed(() => ({
       itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
       label: { show: false },
       emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' } },
-      data: typeSummary.value.map((t) => ({ name: t.name, value: t.count }))
+      data: typeSummary.value.map((tp) => ({ name: translateDsType(tp.name), value: tp.count }))
     }
   ]
 }))
@@ -127,8 +136,8 @@ async function load() {
   } finally { loading.value = false }
 }
 
-function typeColor(t) {
-  return { 海运: 'primary', 空运: 'success', 陆运: 'warning' }[t] || ''
+function typeColor(ts) {
+  return { 海运: 'primary', 空运: 'success', 陆运: 'warning' }[ts] || ''
 }
 function sourceStatusColor(s) {
   return { 在线: 'success', 降级: 'warning', 离线: 'danger' }[s] || 'info'

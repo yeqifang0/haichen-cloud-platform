@@ -3,46 +3,46 @@
     <el-card shadow="hover">
       <div class="toolbar">
         <div>
-          <el-input v-model="query.keyword" placeholder="单号/客户/供应商" clearable style="width: 220px" @keyup.enter="load" />
-          <el-select v-model="query.type" placeholder="单据类型" clearable style="width: 130px; margin-left: 8px" @change="load">
-            <el-option v-for="t in orderTypes" :key="t" :label="t" :value="t" />
+          <el-input v-model="query.keyword" :placeholder="$t('order.no') + '/' + $t('order.customer') + '/' + $t('order.supplier')" clearable style="width: 220px" @keyup.enter="load" />
+          <el-select v-model="query.type" :placeholder="$t('order.type')" clearable style="width: 130px; margin-left: 8px" @change="load">
+            <el-option v-for="t in orderTypes" :key="t" :label="translateOrderType(t)" :value="t" />
           </el-select>
-          <el-select v-model="query.status" placeholder="状态" clearable style="width: 120px; margin-left: 8px" @change="load">
-            <el-option v-for="s in statusList" :key="s" :label="s" :value="s" />
+          <el-select v-model="query.status" :placeholder="$t('order.status')" clearable style="width: 120px; margin-left: 8px" @change="load">
+            <el-option v-for="s in statusList" :key="s" :label="translateOrderStatus(s)" :value="s" />
           </el-select>
-          <el-button type="primary" style="margin-left: 8px" @click="load">查询</el-button>
+          <el-button type="primary" style="margin-left: 8px" @click="load">{{ $t('btn.search') }}</el-button>
         </div>
         <div>
-          <el-button :icon="Refresh" plain @click="syncMobile">同步移动端</el-button>
-          <el-button v-permission="'warehouse:order:add'" type="primary" :icon="Plus" @click="openDialog()">新增单据</el-button>
+          <el-button :icon="Refresh" plain @click="syncMobile">{{ $t('btn.syncMobile') }}</el-button>
+          <el-button v-permission="'warehouse:order:add'" type="primary" :icon="Plus" @click="openDialog()">{{ $t('order.add') }}</el-button>
         </div>
       </div>
       <el-table :data="list" v-loading="loading" stripe border>
-        <el-table-column prop="orderNo" label="单据号" width="190" />
-        <el-table-column prop="type" label="类型" width="100">
+        <el-table-column prop="orderNo" :label="$t('order.no')" width="190" />
+        <el-table-column prop="type" :label="$t('order.type')" width="100">
           <template #default="{ row }">
-            <el-tag :type="typeColor(row.type)" size="small">{{ row.type }}</el-tag>
+            <el-tag :type="typeColor(row.type)" size="small">{{ translateOrderType(row.type) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="往来方" width="160">
+        <el-table-column :label="$t('order.partner')" width="160">
           <template #default="{ row }">{{ row.customer || row.supplier || (row.fromWh + '→' + row.toWh) }}</template>
         </el-table-column>
-        <el-table-column prop="warehouse" label="仓库" width="130" />
-        <el-table-column prop="expectDate" label="预计日期" width="120" />
-        <el-table-column prop="itemCount" label="数量" width="80" align="right" />
-        <el-table-column label="金额(元)" width="120" align="right">
+        <el-table-column prop="warehouse" :label="$t('order.warehouse')" width="130" />
+        <el-table-column prop="expectDate" :label="$t('order.expectDate')" width="120" />
+        <el-table-column prop="itemCount" :label="$t('order.itemCount')" width="80" align="right" />
+        <el-table-column :label="$t('order.amount')" width="120" align="right">
           <template #default="{ row }">¥{{ row.amount?.toLocaleString() }}</template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }"><el-tag :type="statusColor(row.status)" size="small">{{ row.status }}</el-tag></template>
+        <el-table-column prop="status" :label="$t('order.status')" width="100">
+          <template #default="{ row }"><el-tag :type="statusColor(row.status)" size="small">{{ translateOrderStatus(row.status) }}</el-tag></template>
         </el-table-column>
-        <el-table-column prop="creator" label="创建人" width="90" />
+        <el-table-column prop="creator" :label="$t('order.creator')" width="90" />
         <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="viewDetail(row)">详情</el-button>
-            <el-button v-if="row.status === '待审核'" v-permission="'warehouse:order:audit'" link type="success" @click="audit(row, 'pass')">通过</el-button>
-            <el-button v-if="row.status === '待审核'" v-permission="'warehouse:order:audit'" link type="danger" @click="audit(row, 'reject')">驳回</el-button>
-            <el-button v-if="row.type === '销售出库' && (row.status === '已审核' || row.status === '已发运')" link type="warning" @click="goTrack(row)">物流追踪</el-button>
+            <el-button link type="primary" @click="viewDetail(row)">{{ $t('btn.detail') }}</el-button>
+            <el-button v-if="row.status === '待审核'" v-permission="'warehouse:order:audit'" link type="success" @click="audit(row, 'pass')">{{ $t('order.pass') }}</el-button>
+            <el-button v-if="row.status === '待审核'" v-permission="'warehouse:order:audit'" link type="danger" @click="audit(row, 'reject')">{{ $t('order.reject') }}</el-button>
+            <el-button v-if="row.type === '销售出库' && (row.status === '已审核' || row.status === '已发运')" link type="warning" @click="goTrack(row)">{{ $t('order.trackLogistics') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -50,46 +50,46 @@
     </el-card>
 
     <!-- 单据详情 -->
-    <el-dialog v-model="detailVisible" title="单据详情" width="640px">
+    <el-dialog v-model="detailVisible" :title="$t('order.detailTitle')" width="640px">
       <el-descriptions v-if="detail" :column="2" border>
-        <el-descriptions-item label="单据号">{{ detail.orderNo }}</el-descriptions-item>
-        <el-descriptions-item label="类型">{{ detail.type }}</el-descriptions-item>
-        <el-descriptions-item label="往来方">{{ detail.customer || detail.supplier }}</el-descriptions-item>
-        <el-descriptions-item label="仓库">{{ detail.warehouse }}</el-descriptions-item>
-        <el-descriptions-item label="预计日期">{{ detail.expectDate }}</el-descriptions-item>
-        <el-descriptions-item label="状态">{{ detail.status }}</el-descriptions-item>
-        <el-descriptions-item label="创建人">{{ detail.creator }}</el-descriptions-item>
-        <el-descriptions-item label="创建时间">{{ detail.createTime }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.no')">{{ detail.orderNo }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.type')">{{ translateOrderType(detail.type) }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.partner')">{{ detail.customer || detail.supplier }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.warehouse')">{{ detail.warehouse }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.expectDate')">{{ detail.expectDate }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.status')">{{ translateOrderStatus(detail.status) }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.creator')">{{ detail.creator }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('order.createTime')">{{ detail.createTime }}</el-descriptions-item>
       </el-descriptions>
       <el-table :data="detail?.items || []" class="mt-16" border size="small">
-        <el-table-column prop="sku" label="SKU" width="140" />
-        <el-table-column prop="name" label="货品名称" />
-        <el-table-column prop="qty" label="数量" width="80" align="right" />
-        <el-table-column label="单价" width="100" align="right"><template #default="{ row }">¥{{ row.price?.toLocaleString() }}</template></el-table-column>
+        <el-table-column prop="sku" :label="$t('goods_m.sku')" width="140" />
+        <el-table-column prop="name" :label="$t('goods_m.name')" />
+        <el-table-column prop="qty" :label="$t('order.itemCount')" width="80" align="right" />
+        <el-table-column :label="$t('goods_m.price')" width="100" align="right"><template #default="{ row }">¥{{ row.price?.toLocaleString() }}</template></el-table-column>
         <el-table-column label="小计" width="120" align="right"><template #default="{ row }">¥{{ (row.qty * row.price)?.toLocaleString() }}</template></el-table-column>
       </el-table>
     </el-dialog>
 
     <!-- 新增单据 -->
-    <el-dialog v-model="dialogVisible" title="新增单据" width="680px">
+    <el-dialog v-model="dialogVisible" :title="$t('order.add')" width="680px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
         <el-row :gutter="16">
-          <el-col :span="12"><el-form-item label="单据类型" prop="type"><el-select v-model="form.type" style="width:100%" @change="onTypeChange"><el-option v-for="t in orderTypes" :key="t" :label="t" :value="t" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('order.type')" prop="type"><el-select v-model="form.type" style="width:100%" @change="onTypeChange"><el-option v-for="t in orderTypes" :key="t" :label="translateOrderType(t)" :value="t" /></el-select></el-form-item></el-col>
           <el-col :span="12"><el-form-item :label="partnerLabel" prop="partner"><el-input v-model="form.partner" :placeholder="partnerLabel" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="仓库" prop="warehouse"><el-input v-model="form.warehouse" placeholder="如 上海中心仓" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="预计日期" prop="expectDate"><el-date-picker v-model="form.expectDate" type="date" value-format="YYYY-MM-DD" style="width:100%" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('order.warehouse')" prop="warehouse"><el-input v-model="form.warehouse" :placeholder="$t('warehouse_m.name')" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('order.expectDate')" prop="expectDate"><el-date-picker v-model="form.expectDate" type="date" value-format="YYYY-MM-DD" style="width:100%" /></el-form-item></el-col>
         </el-row>
-        <el-divider content-position="left">货品明细</el-divider>
+        <el-divider content-position="left">{{ $t('goods_m.name') }}明细</el-divider>
         <div v-for="(item, idx) in form.items" :key="idx" class="item-row">
-          <el-input v-model="item.sku" placeholder="SKU编码" style="width: 140px" />
-          <el-input v-model="item.name" placeholder="货品名称" style="flex:1" />
-          <el-input-number v-model="item.qty" :min="1" placeholder="数量" style="width: 120px" />
-          <el-input-number v-model="item.price" :min="0" placeholder="单价" style="width: 140px" />
+          <el-input v-model="item.sku" :placeholder="$t('goods_m.sku')" style="width: 140px" />
+          <el-input v-model="item.name" :placeholder="$t('goods_m.name')" style="flex:1" />
+          <el-input-number v-model="item.qty" :min="1" :placeholder="$t('order.itemCount')" style="width: 120px" />
+          <el-input-number v-model="item.price" :min="0" :placeholder="$t('goods_m.price')" style="width: 140px" />
           <el-button link type="danger" :icon="Delete" @click="form.items.splice(idx, 1)" />
         </div>
-        <el-button :icon="Plus" plain style="width: 100%; margin-top: 8px" @click="form.items.push({ sku: '', name: '', qty: 1, price: 0 })">添加明细</el-button>
+        <el-button :icon="Plus" plain style="width: 100%; margin-top: 8px" @click="form.items.push({ sku: '', name: '', qty: 1, price: 0 })">{{ $t('btn.add') }}{{ $t('goods_m.name') }}</el-button>
       </el-form>
-      <template #footer><el-button @click="dialogVisible = false">取消</el-button><el-button type="primary" @click="submit">提交（状态：待审核）</el-button></template>
+      <template #footer><el-button @click="dialogVisible = false">{{ $t('btn.cancel') }}</el-button><el-button type="primary" @click="submit">{{ $t('btn.submit') }}（{{ $t('order.pendingAudit') }}）</el-button></template>
     </el-dialog>
   </div>
 </template>
@@ -97,11 +97,19 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Plus, Delete, Refresh } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { warehouseApi } from '@/api'
 
+const { t } = useI18n()
 const router = useRouter()
+
+const ORDER_TYPE_MAP = { '采购入库': 'order.purchaseIn', '销售出库': 'order.salesOut', '调拨单': 'order.transfer', '退货单': 'order.ret' }
+function translateOrderType(v) { return ORDER_TYPE_MAP[v] ? t(ORDER_TYPE_MAP[v]) : v }
+const ORDER_STATUS_MAP = { '待审核': 'order.pendingAudit', '已审核': 'order.audited', '拣货完成': 'order.picked', '已发运': 'order.shipped', '已完成': 'order.done', '已驳回': 'order.reject' }
+function translateOrderStatus(v) { return ORDER_STATUS_MAP[v] ? t(ORDER_STATUS_MAP[v]) : v }
+
 const orderTypes = ['采购入库', '销售出库', '调拨单', '退货单']
 const statusList = ['待审核', '已审核', '拣货完成', '已发运', '已完成', '已驳回']
 const list = ref([])
@@ -114,12 +122,12 @@ const dialogVisible = ref(false)
 const formRef = ref()
 const form = reactive({ type: '采购入库', partner: '', warehouse: '', expectDate: '', items: [{ sku: '', name: '', qty: 1, price: 0 }] })
 const rules = {
-  type: [{ required: true, message: '请选择类型', trigger: 'change' }],
-  partner: [{ required: true, message: '请输入往来方', trigger: 'blur' }],
-  warehouse: [{ required: true, message: '请输入仓库', trigger: 'blur' }],
-  expectDate: [{ required: true, message: '请选择日期', trigger: 'change' }]
+  type: [{ required: true, message: t('order.type') + 'message.select', trigger: 'change' }],
+  partner: [{ required: true, message: t('order.partner') + 'message.input', trigger: 'blur' }],
+  warehouse: [{ required: true, message: t('order.warehouse') + 'message.input', trigger: 'blur' }],
+  expectDate: [{ required: true, message: t('order.expectDate') + 'message.select', trigger: 'change' }]
 }
-const partnerLabel = computed(() => (form.type === '采购入库' ? '供应商' : form.type === '销售出库' || form.type === '退货单' ? '客户' : '调出方'))
+const partnerLabel = computed(() => (form.type === '采购入库' ? t('order.supplier') : (form.type === '销售出库' || form.type === '退货单') ? t('order.customer') : '调出方'))
 
 async function load() {
   loading.value = true
@@ -131,8 +139,8 @@ async function viewDetail(row) {
   if (res.code === 200) { detail.value = res.data; detailVisible.value = true }
 }
 async function audit(row, action) {
-  const txt = action === 'pass' ? '通过' : '驳回'
-  await ElMessageBox.confirm(`确认${txt}单据「${row.orderNo}」？`, '审核确认', { type: action === 'pass' ? 'success' : 'warning' })
+  const txt = action === 'pass' ? t('order.pass') : t('order.reject')
+  await ElMessageBox.confirm(`${t('header.tip')}${txt}${t('order.no')}「${row.orderNo}」？`, t('btn.audit'), { type: action === 'pass' ? 'success' : 'warning' })
   const res = await warehouseApi.auditOrder({ id: row.id, action })
   if (res.code === 200) {
     ElMessage.success(res.msg)
@@ -150,7 +158,7 @@ function openDialog() {
 async function submit() {
   await formRef.value.validate(async (valid) => {
     if (!valid) return
-    if (!form.items.length || !form.items[0].sku) { ElMessage.warning('请添加至少一条货品明细'); return }
+    if (!form.items.length || !form.items[0].sku) { ElMessage.warning('请添加至少一条' + t('goods_m.name')); return }
     const prefix = { '采购入库': 'PO', '销售出库': 'SO', '调拨单': 'TR', '退货单': 'RT' }[form.type]
     const payload = {
       type: form.type,
@@ -170,7 +178,7 @@ async function submit() {
 }
 async function syncMobile() {
   const res = await warehouseApi.syncMobile()
-  if (res.code === 200) { ElMessage.success(`已同步 ${res.data.synced} 条移动端单据`); load() }
+  if (res.code === 200) { ElMessage.success(t('btn.syncMobile') + ' ' + res.data.synced + ' ' + t('order.no')); load() }
 }
 function typeColor(t) { return { '采购入库': 'primary', '销售出库': 'success', '调拨单': 'warning', '退货单': 'danger' }[t] || '' }
 function statusColor(s) { return { '待审核': 'warning', '已审核': 'primary', '拣货完成': 'info', '已发运': 'primary', '已完成': 'success', '已驳回': 'danger' }[s] || '' }

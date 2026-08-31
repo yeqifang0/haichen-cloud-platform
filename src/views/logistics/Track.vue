@@ -3,44 +3,43 @@
     <el-card shadow="hover">
       <div class="toolbar">
         <div>
-          <el-input v-model="query.keyword" placeholder="运单号 / 客户关键词" clearable style="width: 220px" @keyup.enter="load">
+          <el-input v-model="query.keyword" :placeholder="$t('track.trackingNo')" clearable style="width: 220px" @keyup.enter="load">
             <template #prefix><el-icon><Search /></el-icon></template>
           </el-input>
-          <el-select v-model="query.status" placeholder="状态" clearable style="width: 130px; margin-left: 8px" @change="load">
-            <el-option v-for="s in statusList" :key="s" :label="s" :value="s" />
+          <el-select v-model="query.status" :placeholder="$t('field.status')" clearable style="width: 130px; margin-left: 8px" @change="load">
+            <el-option v-for="s in statusList" :key="s" :label="translateShipStatus(s)" :value="s" />
           </el-select>
-          <el-select v-model="query.mode" placeholder="运输方式" clearable style="width: 130px; margin-left: 8px" @change="load">
-            <el-option v-for="m in modeList" :key="m" :label="m" :value="m" />
+          <el-select v-model="query.mode" :placeholder="$t('field.type')" clearable style="width: 130px; margin-left: 8px" @change="load">
+            <el-option v-for="m in modeList" :key="m" :label="translateTransport(m)" :value="m" />
           </el-select>
           <el-button type="primary" style="margin-left: 8px" @click="load">
-            <el-icon><Search /></el-icon><span style="margin-left:4px">查询</span>
+            <el-icon><Search /></el-icon><span style="margin-left:4px">{{ $t('btn.search') }}</span>
           </el-button>
         </div>
-        <el-tag type="primary" effect="plain" size="small">HC002 多源物流数据融合</el-tag>
       </div>
 
       <el-table :data="list" v-loading="loading" stripe border @row-click="showTrack">
-        <el-table-column prop="trackingNo" label="运单号" width="180" />
-        <el-table-column label="线路" min-width="150">
+        <el-table-column prop="trackingNo" :label="$t('track.trackingNo')" width="180" />
+        <el-table-column :label="$t('dispatch.fromCity') + ' → ' + $t('dispatch.toCity')" min-width="150">
           <template #default="{ row }"><span class="route">{{ row.fromCity }} → {{ row.toCity }}</span></template>
         </el-table-column>
-        <el-table-column prop="mode" label="方式" width="80">
-          <template #default="{ row }"><el-tag size="small" :type="modeColor(row.mode)" effect="plain">{{ row.mode }}</el-tag></template>
+        <el-table-column prop="mode" :label="$t('field.type')" width="80">
+          <template #default="{ row }"><el-tag size="small" :type="modeColor(row.mode)" effect="plain">{{ translateTransport(row.mode) }}</el-tag></template>
         </el-table-column>
-        <el-table-column prop="carrier" label="承运商" min-width="150" show-overflow-tooltip />
-        <el-table-column prop="vehicle" label="车辆" width="120" />
-        <el-table-column label="运输进度" width="190">
+        <el-table-column prop="carrier" :label="$t('track.carrier')" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="vehicle" :label="$t('track.vehicle')" width="120" />
+        <el-table-column :label="$t('track.progress')" width="190">
           <template #default="{ row }">
             <el-progress :percentage="row.progress" :stroke-width="8" :status="row.progress === 100 ? 'success' : ''" />
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }"><el-tag :type="statusColor(row.status)" size="small">{{ row.status }}</el-tag></template>
+        <el-table-column prop="status" :label="$t('field.status')" width="100">
+          <template #default="{ row }"><el-tag :type="statusColor(row.status)" size="small">{{ translateShipStatus(row.status) }}</el-tag></template>
         </el-table-column>
-        <el-table-column prop="eta" label="预计到达" width="150" />
-        <el-table-column label="操作" width="90" fixed="right">
+        <el-table-column prop="eta" :label="$t('dashboard.eta')" width="150" />
+        <el-table-column :label="$t('btn.track')" width="90" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click.stop="showTrack(row)">轨迹</el-button>
+            <el-button link type="primary" @click.stop="showTrack(row)">{{ $t('btn.track') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -49,15 +48,15 @@
     </el-card>
 
     <!-- 物流轨迹抽屉 -->
-    <el-drawer v-model="drawerVisible" :title="`物流轨迹 · ${current?.trackingNo || ''}`" size="460px" direction="rtl">
+    <el-drawer v-model="drawerVisible" :title="$t('btn.track') + ' · ' + (current?.trackingNo || '')" size="460px" direction="rtl">
       <div v-if="current" class="track-head">
         <el-descriptions :column="1" border size="small">
-          <el-descriptions-item label="客户">{{ current.customer }}</el-descriptions-item>
-          <el-descriptions-item label="线路">{{ current.fromCity }} → {{ current.toCity }}（{{ current.mode }}）</el-descriptions-item>
-          <el-descriptions-item label="承运商">{{ current.carrier }}（{{ current.vehicle }}）</el-descriptions-item>
-          <el-descriptions-item label="状态">
-            <el-tag :type="statusColor(current.status)" size="small">{{ current.status }}</el-tag>
-            <span class="progress-text">进度 {{ current.progress }}%</span>
+          <el-descriptions-item :label="$t('track.trackingNo')">{{ current.trackingNo }}</el-descriptions-item>
+          <el-descriptions-item :label="$t('dispatch.fromCity') + ' → ' + $t('dispatch.toCity')">{{ current.fromCity }} → {{ current.toCity }}（{{ translateTransport(current.mode) }}）</el-descriptions-item>
+          <el-descriptions-item :label="$t('track.carrier')">{{ current.carrier }}（{{ current.vehicle }}）</el-descriptions-item>
+          <el-descriptions-item :label="$t('field.status')">
+            <el-tag :type="statusColor(current.status)" size="small">{{ translateShipStatus(current.status) }}</el-tag>
+            <span class="progress-text">{{ $t('track.progress') }} {{ current.progress }}%</span>
           </el-descriptions-item>
         </el-descriptions>
       </div>
@@ -68,14 +67,12 @@
               <div class="track-loc">
                 <el-icon class="loc-icon"><LocationInformation /></el-icon>
                 <span class="loc-text">{{ p.location }}</span>
-                <el-tag v-if="p.status === 'active'" type="primary" size="small" effect="dark" class="cur-tag">当前</el-tag>
-                <el-tag v-else-if="p.status === 'pending'" type="info" size="small" effect="plain" class="cur-tag">待到达</el-tag>
               </div>
               <div class="track-desc">{{ p.desc }}</div>
             </div>
           </el-timeline-item>
         </el-timeline>
-        <el-empty v-else description="暂无轨迹数据" />
+        <el-empty v-else :description="$t('common.noData')" />
       </div>
     </el-drawer>
   </div>
@@ -84,10 +81,20 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Search, LocationInformation } from '@element-plus/icons-vue'
+import { useI18n } from 'vue-i18n'
 import { logisticsApi } from '@/api'
+
+const { t } = useI18n()
 
 const statusList = ['运输中', '已签收', '待发运', '待指派']
 const modeList = ['陆运', '空运', '海运']
+
+const SHIP_STATUS_MAP = { '运输中': 'shipmentStatus.inTransit', '已签收': 'shipmentStatus.delivered', '待发运': 'shipmentStatus.pendingShip', '待指派': 'shipmentStatus.pendingAssign' }
+function translateShipStatus(s) { return SHIP_STATUS_MAP[s] ? t(SHIP_STATUS_MAP[s]) : s }
+
+const TRANSPORT_MAP = { '陆运': 'transport.road', '空运': 'transport.air', '海运': 'transport.sea' }
+function translateTransport(m) { return TRANSPORT_MAP[m] ? t(TRANSPORT_MAP[m]) : m }
 
 const list = ref([])
 const total = ref(0)
@@ -115,7 +122,7 @@ async function showTrack(row) {
   try {
     const res = await logisticsApi.track(row.trackingNo)
     if (res.code === 200) trackPoints.value = res.data
-    else ElMessage.warning(res.msg || '轨迹查询失败')
+    else ElMessage.warning(res.msg || t('common.fail'))
   } finally { trackLoading.value = false }
 }
 

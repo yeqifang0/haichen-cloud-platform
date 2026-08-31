@@ -3,39 +3,39 @@
     <el-card shadow="hover">
       <div class="toolbar">
         <div>
-          <el-input v-model="query.keyword" placeholder="用户名/姓名" clearable style="width: 200px" @keyup.enter="onSearch" />
-          <el-select v-model="query.dept" placeholder="部门" clearable style="width: 140px; margin-left: 8px" @change="onSearch">
+          <el-input v-model="query.keyword" :placeholder="$t('sys.username') + '/' + $t('sys.realName')" clearable style="width: 200px" @keyup.enter="onSearch" />
+          <el-select v-model="query.dept" :placeholder="$t('sys.dept')" clearable style="width: 140px; margin-left: 8px" @change="onSearch">
             <el-option v-for="d in depts" :key="d" :label="d" :value="d" />
           </el-select>
-          <el-select v-model="query.status" placeholder="状态" clearable style="width: 120px; margin-left: 8px" @change="onSearch">
-            <el-option label="启用" :value="1" />
-            <el-option label="停用" :value="0" />
+          <el-select v-model="query.status" :placeholder="$t('sys.status')" clearable style="width: 120px; margin-left: 8px" @change="onSearch">
+            <el-option :label="$t('sys.enabled')" :value="1" />
+            <el-option :label="$t('sys.disabled')" :value="0" />
           </el-select>
-          <el-button type="primary" style="margin-left: 8px" :icon="Search" @click="onSearch">查询</el-button>
-          <el-button style="margin-left: 8px" @click="resetQuery">重置</el-button>
+          <el-button type="primary" style="margin-left: 8px" :icon="Search" @click="onSearch">{{ $t('btn.search') }}</el-button>
+          <el-button style="margin-left: 8px" @click="resetQuery">{{ $t('btn.reset') }}</el-button>
         </div>
-        <el-button v-permission="'system:user:edit'" type="primary" :icon="Plus" @click="openDialog()">新增用户</el-button>
+        <el-button v-permission="'system:user:edit'" type="primary" :icon="Plus" @click="openDialog()">{{ $t('btn.add') }}{{ $t('sys.userTitle').replace('管理', '') }}</el-button>
       </div>
       <el-table :data="list" v-loading="loading" stripe border>
-        <el-table-column prop="username" label="用户名" width="120" />
-        <el-table-column prop="name" label="姓名" width="110" />
-        <el-table-column label="角色" min-width="180">
+        <el-table-column prop="username" :label="$t('sys.username')" width="120" />
+        <el-table-column prop="name" :label="$t('sys.realName')" width="110" />
+        <el-table-column :label="$t('sys.role')" min-width="180">
           <template #default="{ row }">
-            <el-tag v-for="rid in row.roleIds" :key="rid" size="small" style="margin-right: 4px">{{ roleMap[rid] || '未知' }}</el-tag>
+            <el-tag v-for="rid in row.roleIds" :key="rid" size="small" style="margin-right: 4px">{{ roleMap[rid] || '—' }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="dept" label="部门" width="100" />
-        <el-table-column prop="phone" label="手机" width="130" />
-        <el-table-column prop="email" label="邮箱" min-width="180" show-overflow-tooltip />
-        <el-table-column label="状态" width="90">
-          <template #default="{ row }"><el-tag :type="row.status ? 'success' : 'info'" size="small">{{ row.status ? '启用' : '停用' }}</el-tag></template>
+        <el-table-column prop="dept" :label="$t('sys.dept')" width="100" />
+        <el-table-column prop="phone" :label="$t('field.mobile')" width="130" />
+        <el-table-column prop="email" label="Email" min-width="180" show-overflow-tooltip />
+        <el-table-column :label="$t('sys.status')" width="90">
+          <template #default="{ row }"><el-tag :type="row.status ? 'success' : 'info'" size="small">{{ row.status ? $t('sys.enabled') : $t('sys.disabled') }}</el-tag></template>
         </el-table-column>
-        <el-table-column prop="lastLogin" label="最近登录" width="170" />
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column prop="lastLogin" :label="$t('sys.lastLogin')" width="170" />
+        <el-table-column :label="$t('sys.action')" width="220" fixed="right">
           <template #default="{ row }">
-            <el-button v-permission="'system:user:edit'" link type="primary" @click="openDialog(row)">编辑</el-button>
-            <el-button v-permission="'system:user:edit'" link type="warning" @click="openReset(row)">重置密码</el-button>
-            <el-button v-permission="'system:user:edit'" link type="danger" @click="remove(row)">删除</el-button>
+            <el-button v-permission="'system:user:edit'" link type="primary" @click="openDialog(row)">{{ $t('btn.edit') }}</el-button>
+            <el-button v-permission="'system:user:edit'" link type="warning" @click="openReset(row)">{{ $t('common.reset') }}{{ $t('header.changePassword').replace(/^修改/, '') }}</el-button>
+            <el-button v-permission="'system:user:edit'" link type="danger" @click="remove(row)">{{ $t('btn.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -52,28 +52,28 @@
       />
     </el-card>
 
-    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑用户' : '新增用户'" width="640px">
+    <el-dialog v-model="dialogVisible" :title="form.id ? $t('btn.edit') + $t('sys.userTitle').replace('管理', '') : $t('btn.add') + $t('sys.userTitle').replace('管理', '')" width="640px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
         <el-row :gutter="16">
-          <el-col :span="12"><el-form-item label="用户名" prop="username"><el-input v-model="form.username" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="密码" prop="password"><el-input v-model="form.password" type="password" show-password :placeholder="form.id ? '留空不修改' : ''" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="姓名" prop="name"><el-input v-model="form.name" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="部门" prop="dept"><el-select v-model="form.dept" style="width: 100%"><el-option v-for="d in depts" :key="d" :label="d" :value="d" /></el-select></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="角色" prop="roleIds"><el-select v-model="form.roleIds" multiple style="width: 100%"><el-option v-for="r in rolesList" :key="r.id" :label="r.name" :value="r.id" /></el-select></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="手机" prop="phone"><el-input v-model="form.phone" /></el-form-item></el-col>
-          <el-col :span="12"><el-form-item label="邮箱" prop="email"><el-input v-model="form.email" /></el-form-item></el-col>
-          <el-col :span="24"><el-form-item label="状态"><el-switch v-model="form.status" :active-value="1" :inactive-value="0" active-text="启用" inactive-text="停用" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('sys.username')" prop="username"><el-input v-model="form.username" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('field.name')" prop="password"><el-input v-model="form.password" type="password" show-password :placeholder="form.id ? $t('field.remark') : ''" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('sys.realName')" prop="name"><el-input v-model="form.name" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('sys.dept')" prop="dept"><el-select v-model="form.dept" style="width: 100%"><el-option v-for="d in depts" :key="d" :label="d" :value="d" /></el-select></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('sys.role')" prop="roleIds"><el-select v-model="form.roleIds" multiple style="width: 100%"><el-option v-for="r in rolesList" :key="r.id" :label="r.name" :value="r.id" /></el-select></el-form-item></el-col>
+          <el-col :span="12"><el-form-item :label="$t('field.mobile')" prop="phone"><el-input v-model="form.phone" /></el-form-item></el-col>
+          <el-col :span="12"><el-form-item label="Email" prop="email"><el-input v-model="form.email" /></el-form-item></el-col>
+          <el-col :span="24"><el-form-item :label="$t('sys.status')"><el-switch v-model="form.status" :active-value="1" :inactive-value="0" :active-text="$t('sys.enabled')" :inactive-text="$t('sys.disabled')" /></el-form-item></el-col>
         </el-row>
       </el-form>
-      <template #footer><el-button @click="dialogVisible = false">取消</el-button><el-button type="primary" @click="submit">保存</el-button></template>
+      <template #footer><el-button @click="dialogVisible = false">{{ $t('btn.cancel') }}</el-button><el-button type="primary" @click="submit">{{ $t('btn.save') }}</el-button></template>
     </el-dialog>
 
-    <el-dialog v-model="resetVisible" title="重置密码" width="420px">
+    <el-dialog v-model="resetVisible" :title="$t('common.reset') + $t('header.changePassword').replace(/^修改/, '')" width="420px">
       <el-form :model="resetForm" label-width="90px">
-        <el-form-item label="用户名"><el-input v-model="resetForm.username" disabled /></el-form-item>
-        <el-form-item label="新密码" required><el-input v-model="resetForm.password" type="password" show-password placeholder="请输入新密码" /></el-form-item>
+        <el-form-item :label="$t('sys.username')"><el-input v-model="resetForm.username" disabled /></el-form-item>
+        <el-form-item :label="$t('field.name')" required><el-input v-model="resetForm.password" type="password" show-password :placeholder="$t('login.rulesPassword')" /></el-form-item>
       </el-form>
-      <template #footer><el-button @click="resetVisible = false">取消</el-button><el-button type="primary" @click="submitReset">确认重置</el-button></template>
+      <template #footer><el-button @click="resetVisible = false">{{ $t('btn.cancel') }}</el-button><el-button type="primary" @click="submitReset">{{ $t('btn.confirm') }}</el-button></template>
     </el-dialog>
   </div>
 </template>
@@ -82,7 +82,10 @@
 import { ref, reactive, computed } from 'vue'
 import { Plus, Search } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { systemApi } from '@/api'
+
+const { t } = useI18n()
 
 const depts = ['信息中心', '管理层', '仓储部', '物流部', '财务部']
 const list = ref([])
@@ -100,13 +103,13 @@ const dialogVisible = ref(false)
 const formRef = ref()
 const form = reactive({})
 const rules = computed(() => ({
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: !form.id, message: '请输入密码', trigger: 'blur' }],
-  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
-  dept: [{ required: true, message: '请选择部门', trigger: 'change' }],
-  roleIds: [{ required: true, type: 'array', message: '请分配角色', trigger: 'change' }],
-  phone: [{ validator: (rule, val, cb) => (!val || /^1\d{10}$/.test(val) ? cb() : cb(new Error('请输入正确的手机号'))), trigger: 'blur' }],
-  email: [{ validator: (rule, val, cb) => (!val || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val) ? cb() : cb(new Error('邮箱格式不正确'))), trigger: 'blur' }]
+  username: [{ required: true, message: t('login.rulesUsername'), trigger: 'blur' }],
+  password: [{ required: !form.id, message: t('login.rulesPassword'), trigger: 'blur' }],
+  name: [{ required: true, message: t('login.rulesUsername').replace(t('sys.username'), t('sys.realName')), trigger: 'blur' }],
+  dept: [{ required: true, message: t('login.rulesUsername').replace(t('sys.username'), t('sys.dept')), trigger: 'change' }],
+  roleIds: [{ required: true, type: 'array', message: t('login.rulesUsername').replace(t('sys.username'), t('sys.role')), trigger: 'change' }],
+  phone: [{ validator: (rule, val, cb) => (!val || /^1\d{10}$/.test(val) ? cb() : cb(new Error(t('field.mobile')))), trigger: 'blur' }],
+  email: [{ validator: (rule, val, cb) => (!val || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(val) ? cb() : cb(new Error('Email'))), trigger: 'blur' }]
 }))
 
 const resetVisible = ref(false)
@@ -143,7 +146,7 @@ async function submit() {
   })
 }
 async function remove(row) {
-  await ElMessageBox.confirm(`确认删除用户「${row.username}」？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(t('common.confirmDelete'), t('common.confirmTitle'), { type: 'warning' })
   const res = await systemApi.users.remove(row.id)
   if (res.code === 200) { ElMessage.success(res.msg); load() } else ElMessage.error(res.msg)
 }
@@ -154,9 +157,9 @@ function openReset(row) {
   resetVisible.value = true
 }
 async function submitReset() {
-  if (!resetForm.password) { ElMessage.warning('请输入新密码'); return }
+  if (!resetForm.password) { ElMessage.warning(t('login.rulesPassword')); return }
   const res = await systemApi.users.update({ id: resetForm.id, password: resetForm.password })
-  if (res.code === 200) { ElMessage.success('密码重置成功'); resetVisible.value = false } else ElMessage.error(res.msg)
+  if (res.code === 200) { ElMessage.success(res.msg); resetVisible.value = false } else ElMessage.error(res.msg)
 }
 
 loadRoles()

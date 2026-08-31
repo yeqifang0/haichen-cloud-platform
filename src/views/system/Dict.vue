@@ -3,13 +3,13 @@
     <el-row :gutter="16">
       <el-col :span="8">
         <el-card shadow="hover">
-          <template #header><span>字典类型</span></template>
+          <template #header><span>{{ $t('sys.dictTitle').replace('数据', '') }}{{ $t('field.type') }}</span></template>
           <div v-loading="loading">
             <div v-for="d in dictList" :key="d.id" :class="['dict-item', { active: current && current.id === d.id }]" @click="selectDict(d)">
               <div class="dict-name">{{ d.type }}</div>
               <div class="dict-code">{{ d.code }}</div>
             </div>
-            <el-empty v-if="!dictList.length" description="暂无字典" :image-size="60" />
+            <el-empty v-if="!dictList.length" :description="$t('common.noData')" :image-size="60" />
           </div>
         </el-card>
       </el-col>
@@ -17,19 +17,19 @@
         <el-card shadow="hover">
           <template #header>
             <div class="toolbar">
-              <span>字典选项{{ current ? ' · ' + current.type : '' }}</span>
-              <el-button v-if="current" type="primary" size="small" :icon="Check" @click="save">保存</el-button>
+              <span>{{ $t('sys.dictTitle') }}{{ current ? ' · ' + current.type : '' }}</span>
+              <el-button v-if="current" type="primary" size="small" :icon="Check" @click="save">{{ $t('btn.save') }}</el-button>
             </div>
           </template>
-          <el-empty v-if="!current" description="请选择左侧字典类型" :image-size="80" />
+          <el-empty v-if="!current" :description="$t('common.noData')" :image-size="80" />
           <template v-else>
             <div class="tag-area">
               <el-tag v-for="item in editItems" :key="item" closable class="dict-tag" @close="removeItem(item)">{{ item }}</el-tag>
-              <span v-if="!editItems.length" class="empty-tip">暂无选项，请添加</span>
+              <span v-if="!editItems.length" class="empty-tip">{{ $t('common.noData') }}</span>
             </div>
             <div class="add-row">
-              <el-input v-model="newItem" placeholder="输入新选项值" style="width: 240px" @keyup.enter="addItem" />
-              <el-button type="primary" style="margin-left: 8px" :icon="Plus" @click="addItem">添加</el-button>
+              <el-input v-model="newItem" :placeholder="$t('field.description')" style="width: 240px" @keyup.enter="addItem" />
+              <el-button type="primary" style="margin-left: 8px" :icon="Plus" @click="addItem">{{ $t('btn.add') }}</el-button>
             </div>
           </template>
         </el-card>
@@ -42,7 +42,10 @@
 import { ref } from 'vue'
 import { Plus, Check } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { systemApi } from '@/api'
+
+const { t } = useI18n()
 
 const dictList = ref([])
 const loading = ref(false)
@@ -67,8 +70,8 @@ function selectDict(d) {
 }
 function addItem() {
   const v = newItem.value.trim()
-  if (!v) { ElMessage.warning('请输入选项值'); return }
-  if (editItems.value.includes(v)) { ElMessage.warning('该选项已存在'); return }
+  if (!v) { ElMessage.warning(t('login.rulesUsername').replace(t('sys.username'), t('field.description'))); return }
+  if (editItems.value.includes(v)) { ElMessage.warning(t('field.description')); return }
   editItems.value.push(v)
   newItem.value = ''
 }

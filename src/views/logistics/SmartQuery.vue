@@ -5,11 +5,10 @@
         <div class="card-header">
           <div class="header-title">
             <el-icon class="header-icon"><ChatDotRound /></el-icon>
-            <span>NLP 智能查询助手</span>
-            <el-tag type="primary" size="small" effect="plain">基于 HC002 NLP 自然语言智能查询引擎</el-tag>
+            <span>{{ $t('smartQuery.title') }}</span>
           </div>
           <el-button text type="primary" size="small" @click="loadHistory">
-            <el-icon><Refresh /></el-icon><span style="margin-left:4px">刷新历史</span>
+            <el-icon><Refresh /></el-icon><span style="margin-left:4px">{{ $t('btn.reset') }}</span>
           </el-button>
         </div>
       </template>
@@ -18,7 +17,7 @@
         <!-- 左侧：历史 + 快捷提问 -->
         <div class="chat-side">
           <div class="side-section">
-            <div class="side-title"><el-icon><Clock /></el-icon> 快捷提问</div>
+            <div class="side-title"><el-icon><Clock /></el-icon> {{ $t('bench.tryMe') }}</div>
             <div class="quick-list">
               <el-button v-for="(q, i) in quickQuestions" :key="i" class="quick-btn" @click="sendQuery(q)">
                 {{ q }}
@@ -26,13 +25,13 @@
             </div>
           </div>
           <div class="side-section">
-            <div class="side-title"><el-icon><Document /></el-icon> 查询历史</div>
+            <div class="side-title"><el-icon><Document /></el-icon> {{ $t('smartQuery.history') }}</div>
             <div v-loading="historyLoading" class="history-list">
               <div v-for="h in history" :key="h.id" class="history-item" @click="sendQuery(h.query)">
                 <div class="history-q">{{ h.query }}</div>
                 <div class="history-t">{{ h.time }}</div>
               </div>
-              <el-empty v-if="!history.length && !historyLoading" description="暂无历史" :image-size="60" />
+              <el-empty v-if="!history.length && !historyLoading" :description="$t('smartQuery.noHistory')" :image-size="60" />
             </div>
           </div>
         </div>
@@ -42,13 +41,13 @@
           <div ref="chatBody" class="chat-body">
             <div v-if="!messages.length" class="empty-tip">
               <el-icon class="empty-icon"><ChatLineSquare /></el-icon>
-              <p>你好，我是 HC002 智能查询助手</p>
-              <p class="sub">试试问我："昨天发往成都的货到哪了？"</p>
+              <p>{{ $t('smartQuery.title') }}</p>
+              <p class="sub">{{ $t('smartQuery.placeholder') }}</p>
             </div>
             <div v-for="(m, i) in messages" :key="i" class="msg-row" :class="m.role">
               <div v-if="m.role === 'ai'" class="avatar ai-avatar"><el-icon><Robot /></el-icon></div>
               <div class="bubble" :class="m.role">
-                <div v-if="m.role === 'ai'" class="bubble-label">HC002 智能助手</div>
+                <div v-if="m.role === 'ai'" class="bubble-label">{{ $t('smartQuery.title') }}</div>
                 <div class="bubble-text">{{ m.text }}</div>
               </div>
               <div v-if="m.role === 'user'" class="avatar user-avatar"><el-icon><User /></el-icon></div>
@@ -64,7 +63,7 @@
           <div class="chat-input">
             <el-input
               v-model="inputText"
-              placeholder="输入你的问题，回车发送…"
+              :placeholder="$t('smartQuery.placeholder')"
               clearable
               size="large"
               @keyup.enter="sendQuery()"
@@ -72,7 +71,7 @@
               <template #prefix><el-icon><EditPen /></el-icon></template>
             </el-input>
             <el-button type="primary" size="large" :loading="loading" @click="sendQuery()">
-              <el-icon><Promotion /></el-icon><span style="margin-left:4px">发送</span>
+              <el-icon><Promotion /></el-icon><span style="margin-left:4px">{{ $t('btn.submit') }}</span>
             </el-button>
           </div>
         </div>
@@ -84,7 +83,10 @@
 <script setup>
 import { ref, nextTick, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { logisticsApi } from '@/api'
+
+const { t } = useI18n()
 
 const quickQuestions = [
   '昨天发往成都的货到哪了？',
@@ -102,7 +104,7 @@ const chatBody = ref(null)
 
 async function sendQuery(text) {
   const q = (text ?? inputText.value ?? '').trim()
-  if (!q) { ElMessage.warning('请输入查询内容'); return }
+  if (!q) { ElMessage.warning(t('common.noData')); return }
   if (loading.value) return
   messages.value.push({ role: 'user', text: q })
   inputText.value = ''
@@ -113,10 +115,10 @@ async function sendQuery(text) {
     if (res.code === 200) {
       messages.value.push({ role: 'ai', text: res.data.result })
     } else {
-      messages.value.push({ role: 'ai', text: `查询失败：${res.msg || '服务异常'}` })
+      messages.value.push({ role: 'ai', text: t('common.fail') + '：' + (res.msg || '') })
     }
   } catch (e) {
-    messages.value.push({ role: 'ai', text: '查询服务异常，请稍后重试' })
+    messages.value.push({ role: 'ai', text: t('common.fail') })
   } finally {
     loading.value = false
     await scrollToBottom()

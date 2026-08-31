@@ -6,7 +6,7 @@
         <el-card shadow="hover" class="stat-card stat-blue">
           <div class="stat-icon"><el-icon><Money /></el-icon></div>
           <div class="stat-body">
-            <div class="stat-label">应付总额</div>
+            <div class="stat-label">{{ $t('finance.payable') }}</div>
             <div class="stat-value">¥{{ stats.total.toLocaleString() }}</div>
           </div>
         </el-card>
@@ -15,7 +15,7 @@
         <el-card shadow="hover" class="stat-card stat-green">
           <div class="stat-icon"><el-icon><Wallet /></el-icon></div>
           <div class="stat-body">
-            <div class="stat-label">已付款</div>
+            <div class="stat-label">{{ $t('finance.paid') }}</div>
             <div class="stat-value">¥{{ stats.paid.toLocaleString() }}</div>
           </div>
         </el-card>
@@ -24,7 +24,7 @@
         <el-card shadow="hover" class="stat-card stat-orange">
           <div class="stat-icon"><el-icon><Timer /></el-icon></div>
           <div class="stat-body">
-            <div class="stat-label">待付款</div>
+            <div class="stat-label">{{ $t('finance.pendingPay') }}</div>
             <div class="stat-value">¥{{ stats.pending.toLocaleString() }}</div>
           </div>
         </el-card>
@@ -34,32 +34,34 @@
     <el-card shadow="hover">
       <div class="toolbar">
         <div>
-          <el-input v-model="query.keyword" placeholder="供应商/单号" clearable style="width: 220px" @keyup.enter="search" />
-          <el-select v-model="query.status" placeholder="状态" clearable style="width: 140px; margin-left: 8px" @change="search">
-            <el-option v-for="s in statusList" :key="s" :label="s" :value="s" />
+          <el-input v-model="query.keyword" :placeholder="$t('finance.supplier')" clearable style="width: 220px" @keyup.enter="search" />
+          <el-select v-model="query.status" :placeholder="$t('field.status')" clearable style="width: 140px; margin-left: 8px" @change="search">
+            <el-option v-for="s in statusList" :key="s" :label="translateStatus(s)" :value="s" />
           </el-select>
-          <el-date-picker v-model="query.period" type="month" placeholder="账期" value-format="YYYY-MM" clearable style="width: 160px; margin-left: 8px" @change="search" />
-          <el-button type="primary" style="margin-left: 8px" @click="search">查询</el-button>
+          <el-date-picker v-model="query.period" type="month" :placeholder="$t('finance.period')" value-format="YYYY-MM" clearable style="width: 160px; margin-left: 8px" @change="search" />
+          <el-button type="primary" style="margin-left: 8px" @click="search">{{ $t('btn.search') }}</el-button>
         </div>
       </div>
 
       <el-table :data="list" v-loading="loading" stripe border>
-        <el-table-column prop="billNo" label="单号" width="180" />
-        <el-table-column prop="supplier" label="供应商" min-width="160" show-overflow-tooltip />
-        <el-table-column prop="orderNo" label="关联订单" width="190" />
-        <el-table-column label="金额" width="140" align="right">
+        <el-table-column prop="billNo" :label="$t('finance.billNo')" width="180" />
+        <el-table-column prop="supplier" :label="$t('finance.supplier')" min-width="160" show-overflow-tooltip />
+        <el-table-column :label="$t('order.no')" width="190">
+          <template #default="{ row }">{{ row.orderNo }}</template>
+        </el-table-column>
+        <el-table-column :label="$t('finance.amount')" width="140" align="right">
           <template #default="{ row }"><span class="amount">¥{{ row.amount?.toLocaleString() }}</span></template>
         </el-table-column>
-        <el-table-column prop="period" label="账期" width="110" />
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }"><el-tag :type="statusColor(row.status)" size="small">{{ row.status }}</el-tag></template>
+        <el-table-column prop="period" :label="$t('finance.period')" width="110" />
+        <el-table-column :label="$t('field.status')" width="100">
+          <template #default="{ row }"><el-tag :type="statusColor(row.status)" size="small">{{ translateStatus(row.status) }}</el-tag></template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="170" />
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column prop="createTime" :label="$t('field.createTime')" width="170" />
+        <el-table-column :label="$t('btn.view')" width="130" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === '待对账'" link type="primary" @click="doReconcile(row)">对账确认</el-button>
-            <el-button v-else-if="row.status === '待付款'" link type="success" @click="doSettle(row)">付款</el-button>
-            <span v-else class="text-muted">已完成</span>
+            <el-button v-if="row.status === '待对账'" link type="primary" @click="doReconcile(row)">{{ $t('finance.pendingRecon') }}</el-button>
+            <el-button v-else-if="row.status === '待付款'" link type="success" @click="doSettle(row)">{{ $t('finance.paid') }}</el-button>
+            <span v-else class="text-muted">{{ $t('common.success') }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -71,8 +73,18 @@
 
 <script setup>
 import { ref, reactive, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { financeApi } from '@/api'
+
+const { t } = useI18n()
+
+const STATUS_MAP = {
+  '待对账': 'finance.pendingRecon',
+  '待付款': 'finance.pendingPay',
+  '已付款': 'finance.paid'
+}
+function translateStatus(s) { return STATUS_MAP[s] ? t(STATUS_MAP[s]) : s }
 
 const statusList = ['待对账', '待付款', '已付款']
 const list = ref([])
@@ -80,7 +92,6 @@ const total = ref(0)
 const loading = ref(false)
 const query = reactive({ page: 1, pageSize: 10, keyword: '', status: '', period: '' })
 
-// 统计卡片：基于当前列表数据计算
 const stats = computed(() => {
   const total = list.value.reduce((s, i) => s + (i.amount || 0), 0)
   const paid = list.value.filter((i) => i.status === '已付款').reduce((s, i) => s + (i.amount || 0), 0)
@@ -108,26 +119,26 @@ function search() {
 
 async function doReconcile(row) {
   try {
-    await ElMessageBox.confirm(`确认对账单据「${row.billNo}」？`, '对账确认', { type: 'warning' })
+    await ElMessageBox.confirm(`${t('finance.pendingRecon')} ${row.billNo}？`, t('finance.pendingRecon'), { type: 'warning' })
   } catch {
     return
   }
   const res = await financeApi.reconcile(row.id, 'ap')
   if (res.code === 200) {
-    ElMessage.success(res.msg)
+    ElMessage.success(res.msg || t('common.success'))
     load()
   }
 }
 
 async function doSettle(row) {
   try {
-    await ElMessageBox.confirm(`确认支付单据「${row.billNo}」的款项？`, '付款确认', { type: 'success' })
+    await ElMessageBox.confirm(`${t('finance.paid')} ${row.billNo}？`, t('finance.paid'), { type: 'success' })
   } catch {
     return
   }
   const res = await financeApi.settle(row.id, 'ap')
   if (res.code === 200) {
-    ElMessage.success(res.msg)
+    ElMessage.success(res.msg || t('common.success'))
     load()
   }
 }

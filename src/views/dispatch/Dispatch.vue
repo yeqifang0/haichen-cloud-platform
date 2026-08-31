@@ -3,38 +3,37 @@
     <el-card shadow="hover">
       <template #header>
         <div class="card-header">
-          <span class="card-title">调度管理 · 车货匹配</span>
-          <el-tag type="primary" size="small" effect="plain">销售出库审核后自动生成运输任务，在此完成车货匹配指派</el-tag>
+          <span class="card-title">{{ $t('dispatch.title') }}</span>
         </div>
       </template>
       <div class="toolbar">
         <div>
-          <el-select v-model="query.status" placeholder="调度状态" clearable style="width: 150px" @change="load">
-            <el-option v-for="s in ['待调度','已指派','运输中','已完成']" :key="s" :label="s" :value="s" />
+          <el-select v-model="query.status" :placeholder="$t('dispatch.status')" clearable style="width: 150px" @change="load">
+            <el-option v-for="s in ['待调度','已指派','运输中','已完成']" :key="s" :label="translateDispatchStatus(s)" :value="s" />
           </el-select>
-          <el-button type="primary" style="margin-left: 8px" @click="load">查询</el-button>
+          <el-button type="primary" style="margin-left: 8px" @click="load">{{ $t('btn.search') }}</el-button>
         </div>
-        <el-button type="primary" :icon="Refresh" @click="load">刷新</el-button>
+        <el-button type="primary" :icon="Refresh" @click="load">{{ $t('btn.reset') }}</el-button>
       </div>
       <el-table :data="list" v-loading="loading" stripe border>
-        <el-table-column prop="dispatchNo" label="调度单号" width="170" />
-        <el-table-column prop="shipmentNo" label="关联运单" width="170" />
-        <el-table-column label="运输线路" width="160">
+        <el-table-column prop="dispatchNo" :label="$t('dispatch.no')" width="170" />
+        <el-table-column prop="shipmentNo" :label="$t('dispatch.shipNo')" width="170" />
+        <el-table-column :label="$t('dispatch.fromCity') + ' → ' + $t('dispatch.toCity')" width="160">
           <template #default="{ row }">
             <span class="route-line">{{ row.fromCity }} <el-icon><ArrowRight /></el-icon> {{ row.toCity }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="vehicle" label="车辆" width="130" />
-        <el-table-column prop="driver" label="司机" width="100" />
-        <el-table-column prop="cargo" label="货物" min-width="150" show-overflow-tooltip />
-        <el-table-column prop="weight" label="重量" width="90" align="right" />
-        <el-table-column label="状态" width="100">
-          <template #default="{ row }"><el-tag :type="statusType(row.status)" size="small">{{ row.status }}</el-tag></template>
+        <el-table-column prop="vehicle" :label="$t('dispatch.vehicle')" width="130" />
+        <el-table-column prop="driver" :label="$t('dispatch.driver')" width="100" />
+        <el-table-column prop="cargo" :label="$t('dispatch.cargo')" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="weight" :label="$t('dispatch.weight')" width="90" align="right" />
+        <el-table-column :label="$t('dispatch.status')" width="100">
+          <template #default="{ row }"><el-tag :type="statusType(row.status)" size="small">{{ translateDispatchStatus(row.status) }}</el-tag></template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="160" />
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column prop="createTime" :label="$t('field.createTime')" width="160" />
+        <el-table-column :label="$t('btn.edit')" width="130" fixed="right">
           <template #default="{ row }">
-            <el-button v-if="row.status === '待调度'" v-permission="'dispatch:assign'" link type="primary" @click="openAssign(row)">指派车辆</el-button>
+            <el-button v-if="row.status === '待调度'" v-permission="'dispatch:assign'" link type="primary" @click="openAssign(row)">{{ $t('btn.assign') }}</el-button>
             <span v-else class="text-muted">—</span>
           </template>
         </el-table-column>
@@ -52,31 +51,31 @@
       />
     </el-card>
 
-    <el-dialog v-model="assignVisible" :title="`指派车辆 - ${current.dispatchNo}`" width="540px">
+    <el-dialog v-model="assignVisible" :title="$t('btn.assign') + ' - ' + current.dispatchNo" width="540px">
       <el-descriptions :column="2" border size="small" class="mb-16">
-        <el-descriptions-item label="调度单号">{{ current.dispatchNo }}</el-descriptions-item>
-        <el-descriptions-item label="关联运单">{{ current.shipmentNo }}</el-descriptions-item>
-        <el-descriptions-item label="运输线路">{{ current.fromCity }} → {{ current.toCity }}</el-descriptions-item>
-        <el-descriptions-item label="货物">{{ current.cargo }}</el-descriptions-item>
-        <el-descriptions-item label="重量">{{ current.weight }}</el-descriptions-item>
-        <el-descriptions-item label="状态">
-          <el-tag :type="statusType(current.status)" size="small">{{ current.status }}</el-tag>
+        <el-descriptions-item :label="$t('dispatch.no')">{{ current.dispatchNo }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('dispatch.shipNo')">{{ current.shipmentNo }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('dispatch.fromCity') + ' → ' + $t('dispatch.toCity')">{{ current.fromCity }} → {{ current.toCity }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('dispatch.cargo')">{{ current.cargo }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('dispatch.weight')">{{ current.weight }}</el-descriptions-item>
+        <el-descriptions-item :label="$t('dispatch.status')">
+          <el-tag :type="statusType(current.status)" size="small">{{ translateDispatchStatus(current.status) }}</el-tag>
         </el-descriptions-item>
       </el-descriptions>
       <el-form ref="assignFormRef" :model="assignForm" :rules="assignRules" label-width="90px">
-        <el-form-item label="选择车辆" prop="vehicle">
-          <el-select v-model="assignForm.vehicle" placeholder="请选择空闲车辆" style="width:100%" filterable>
+        <el-form-item :label="$t('dispatch.vehicle')" prop="vehicle">
+          <el-select v-model="assignForm.vehicle" :placeholder="$t('dispatch.selectIdle')" style="width:100%" filterable>
             <el-option
               v-for="v in idleVehicles"
               :key="v.id"
               :label="`${v.plate} · ${v.model} · ${v.capacity}`"
               :value="v.plate"
             />
-            <template #empty><el-empty description="暂无空闲车辆" :image-size="40" /></template>
+            <template #empty><el-empty :description="$t('dispatch.noIdle')" :image-size="40" /></template>
           </el-select>
         </el-form-item>
-        <el-form-item label="选择司机" prop="driver">
-          <el-select v-model="assignForm.driver" placeholder="请选择司机" style="width:100%" filterable>
+        <el-form-item :label="$t('dispatch.driver')" prop="driver">
+          <el-select v-model="assignForm.driver" :placeholder="$t('dispatch.selectDriver')" style="width:100%" filterable>
             <el-option
               v-for="d in drivers"
               :key="d.id"
@@ -87,8 +86,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="assignVisible = false">取消</el-button>
-        <el-button type="primary" :loading="assigning" @click="confirmAssign">确认指派</el-button>
+        <el-button @click="assignVisible = false">{{ $t('btn.cancel') }}</el-button>
+        <el-button type="primary" :loading="assigning" @click="confirmAssign">{{ $t('btn.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -98,7 +97,10 @@
 import { ref, reactive } from 'vue'
 import { Refresh, ArrowRight } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { dispatchApi } from '@/api'
+
+const { t } = useI18n()
 
 const list = ref([])
 const total = ref(0)
@@ -109,12 +111,15 @@ const assigning = ref(false)
 const assignFormRef = ref()
 const assignForm = reactive({ vehicle: '', driver: '' })
 const assignRules = {
-  vehicle: [{ required: true, message: '请选择车辆', trigger: 'change' }],
-  driver: [{ required: true, message: '请选择司机', trigger: 'change' }]
+  vehicle: [{ required: true, message: t('dispatch.vehicle'), trigger: 'change' }],
+  driver: [{ required: true, message: t('dispatch.driver'), trigger: 'change' }]
 }
 const current = reactive({})
 const idleVehicles = ref([])
 const drivers = ref([])
+
+const DISPATCH_STATUS_MAP = { '待调度': 'dispatch.pending', '已指派': 'dispatch.assigned', '运输中': 'dispatch.inTransit', '已完成': 'dispatch.done' }
+function translateDispatchStatus(s) { return DISPATCH_STATUS_MAP[s] ? t(DISPATCH_STATUS_MAP[s]) : s }
 
 function statusType(s) {
   return { 待调度: 'warning', 已指派: 'primary', 运输中: 'primary', 已完成: 'success' }[s] || 'info'

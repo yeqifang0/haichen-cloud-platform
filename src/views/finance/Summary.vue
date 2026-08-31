@@ -4,30 +4,30 @@
     <el-row :gutter="16" class="mb-16">
       <el-col :span="6">
         <div class="big-card big-blue">
-          <div class="big-head"><el-icon><TrendCharts /></el-icon><span>应收总额</span></div>
+          <div class="big-head"><el-icon><TrendCharts /></el-icon><span>{{ $t('finance.receivable') }}</span></div>
           <div class="big-value">¥{{ data.arTotal?.toLocaleString() }}</div>
-          <div class="big-sub">已收款 ¥{{ data.arReceived?.toLocaleString() }}</div>
+          <div class="big-sub">{{ $t('finance.received') }} ¥{{ data.arReceived?.toLocaleString() }}</div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="big-card big-red">
-          <div class="big-head"><el-icon><Coin /></el-icon><span>应付总额</span></div>
+          <div class="big-head"><el-icon><Coin /></el-icon><span>{{ $t('finance.payable') }}</span></div>
           <div class="big-value">¥{{ data.apTotal?.toLocaleString() }}</div>
-          <div class="big-sub">已付款 ¥{{ data.apPaid?.toLocaleString() }}</div>
+          <div class="big-sub">{{ $t('finance.paid') }} ¥{{ data.apPaid?.toLocaleString() }}</div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="big-card big-green">
-          <div class="big-head"><el-icon><Wallet /></el-icon><span>净现金流</span></div>
+          <div class="big-head"><el-icon><Wallet /></el-icon><span>{{ $t('finance.summary') }}</span></div>
           <div class="big-value">{{ netCash >= 0 ? '+' : '-' }}¥{{ Math.abs(netCash).toLocaleString() }}</div>
-          <div class="big-sub">已收款 - 已付款</div>
+          <div class="big-sub">{{ $t('finance.received') }} - {{ $t('finance.paid') }}</div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="big-card big-purple">
-          <div class="big-head"><el-icon><DataLine /></el-icon><span>回款率</span></div>
+          <div class="big-head"><el-icon><DataLine /></el-icon><span>{{ $t('analytics.slaRate') }}</span></div>
           <div class="big-value">{{ recoverRate }}%</div>
-          <div class="big-sub">已收款 / 应收总额</div>
+          <div class="big-sub">{{ $t('finance.received') }} / {{ $t('finance.receivable') }}</div>
         </div>
       </el-col>
     </el-row>
@@ -36,26 +36,26 @@
     <el-row :gutter="16" class="mb-16">
       <el-col :span="12">
         <el-card shadow="hover">
-          <template #header><div class="card-header">应收结构</div></template>
+          <template #header><div class="card-header">{{ $t('finance.receivable') }}</div></template>
           <div class="struct-line">
-            <div class="struct-info"><span>已收款</span><span class="amt green">¥{{ data.arReceived?.toLocaleString() }}</span></div>
+            <div class="struct-info"><span>{{ $t('finance.received') }}</span><span class="amt green">¥{{ data.arReceived?.toLocaleString() }}</span></div>
             <el-progress :percentage="arRate" color="#52c41a" :stroke-width="14" />
           </div>
           <div class="struct-line">
-            <div class="struct-info"><span>待收款</span><span class="amt orange">¥{{ data.arPending?.toLocaleString() }}</span></div>
+            <div class="struct-info"><span>{{ $t('finance.pendingRecv') }}</span><span class="amt orange">¥{{ data.arPending?.toLocaleString() }}</span></div>
             <el-progress :percentage="100 - arRate" color="#faad14" :stroke-width="14" />
           </div>
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card shadow="hover">
-          <template #header><div class="card-header">应付结构</div></template>
+          <template #header><div class="card-header">{{ $t('finance.payable') }}</div></template>
           <div class="struct-line">
-            <div class="struct-info"><span>已付款</span><span class="amt green">¥{{ data.apPaid?.toLocaleString() }}</span></div>
+            <div class="struct-info"><span>{{ $t('finance.paid') }}</span><span class="amt green">¥{{ data.apPaid?.toLocaleString() }}</span></div>
             <el-progress :percentage="apRate" color="#52c41a" :stroke-width="14" />
           </div>
           <div class="struct-line">
-            <div class="struct-info"><span>待付款</span><span class="amt orange">¥{{ data.apPending?.toLocaleString() }}</span></div>
+            <div class="struct-info"><span>{{ $t('finance.pendingPay') }}</span><span class="amt orange">¥{{ data.apPending?.toLocaleString() }}</span></div>
             <el-progress :percentage="100 - apRate" color="#faad14" :stroke-width="14" />
           </div>
         </el-card>
@@ -66,7 +66,7 @@
     <el-card shadow="hover">
       <div class="note">
         <el-icon><InfoFilled /></el-icon>
-        <span>基于销售出库与采购入库单据自动生成应收应付台账，支持一键对账与结算。</span>
+        <span>{{ $t('finance.title') }}</span>
       </div>
     </el-card>
   </div>
@@ -74,18 +74,17 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { financeApi } from '@/api'
+
+const { t } = useI18n()
 
 const data = ref({})
 const loading = ref(false)
 
-// 应收回款进度（与回款率同口径）
 const arRate = computed(() => (data.value.arTotal ? +(data.value.arReceived / data.value.arTotal * 100).toFixed(1) : 0))
-// 应付付款进度
 const apRate = computed(() => (data.value.apTotal ? +(data.value.apPaid / data.value.apTotal * 100).toFixed(1) : 0))
-// 回款率
 const recoverRate = computed(() => (data.value.arTotal ? +(data.value.arReceived / data.value.arTotal * 100).toFixed(1) : 0))
-// 净现金流
 const netCash = computed(() => data.value.netCash || 0)
 
 async function load() {

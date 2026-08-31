@@ -15,41 +15,43 @@
     <el-row :gutter="16" class="mt-16">
       <el-col :xs="24" :lg="12">
         <el-card shadow="hover">
-          <template #header><span class="card-title">仓库库容使用率</span></template>
+          <template #header><span class="card-title">{{ $t('warehouse_m.title') }}{{ $t('field.type') }}{{ $t('dashboard.unitPercent') }}</span></template>
           <BaseChart :option="usageOption" height="300px" />
         </el-card>
       </el-col>
       <el-col :xs="24" :lg="12">
         <el-card shadow="hover">
-          <template #header><span class="card-title">温湿度实时监控</span></template>
+          <template #header><span class="card-title">{{ $t('dashboard.temp') }}/{{ $t('dashboard.humidity') }}</span></template>
           <BaseChart :option="envOption" height="300px" />
         </el-card>
       </el-col>
     </el-row>
 
     <el-card shadow="hover" class="mt-16">
-      <template #header><span class="card-title">仓库列表</span></template>
+      <template #header><span class="card-title">{{ $t('warehouse_m.list') }}</span></template>
       <el-table :data="warehouses" stripe>
-        <el-table-column prop="code" label="仓库编码" width="140" />
-        <el-table-column prop="name" label="仓库名称" width="160" />
-        <el-table-column prop="type" label="类型" width="100" />
+        <el-table-column prop="code" :label="$t('warehouse_m.code')" width="140" />
+        <el-table-column prop="name" :label="$t('warehouse_m.name')" width="160" />
+        <el-table-column prop="type" :label="$t('warehouse_m.type')" width="100">
+          <template #default="{ row }">{{ translateWhType(row.type) }}</template>
+        </el-table-column>
         <el-table-column prop="area" label="面积(㎡)" width="100" />
-        <el-table-column prop="manager" label="负责人" width="100" />
+        <el-table-column prop="manager" :label="$t('warehouse_m.manager')" width="100" />
         <el-table-column label="库容使用率" width="200">
           <template #default="{ row }">
             <el-progress v-if="row.status" :percentage="row.usage" :color="usageColor(row.usage)" />
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="温度" width="80">
+        <el-table-column :label="$t('dashboard.temp')" width="80">
           <template #default="{ row }">{{ row.status ? row.temp + '℃' : '-' }}</template>
         </el-table-column>
-        <el-table-column label="湿度" width="80">
+        <el-table-column :label="$t('dashboard.humidity')" width="80">
           <template #default="{ row }">{{ row.status ? row.humidity + '%' : '-' }}</template>
         </el-table-column>
-        <el-table-column label="状态" width="90">
+        <el-table-column :label="$t('field.status')" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status ? 'success' : 'info'" size="small">{{ row.status ? '启用' : '停用' }}</el-tag>
+            <el-tag :type="row.status ? 'success' : 'info'" size="small">{{ row.status ? $t('goods_m.enabled') : $t('goods_m.disabled') }}</el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -59,15 +61,22 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseChart from '@/components/BaseChart.vue'
 import { warehouseApi } from '@/api'
 
+const { t } = useI18n()
+
+const WH_TYPE_MAP = { '中心仓': 'warehouse_m.center', '区域仓': 'warehouse_m.region', '前置仓': 'warehouse_m.front' }
+function translateWhType(v) { return WH_TYPE_MAP[v] ? t(WH_TYPE_MAP[v]) : v }
+
 const warehouses = ref([])
+
 const overview = computed(() => [
-  { label: '今日入库(件)', value: 50, icon: 'Goods', bg: 'linear-gradient(135deg,#e6f4ff,#bae0ff)' },
-  { label: '今日出库(件)', value: 64, icon: 'Sell', bg: 'linear-gradient(135deg,#f6ffed,#d9f7be)' },
-  { label: '库存不足预警', value: warehouses.value.filter((w) => w.usage < 30 && w.status).length + 2, icon: 'Warning', bg: 'linear-gradient(135deg,#fffbe6,#fff1b8)' },
-  { label: '库容超限预警', value: warehouses.value.filter((w) => w.usage > 90).length, icon: 'AlarmClock', bg: 'linear-gradient(135deg,#fff1f0,#ffccc7)' }
+  { label: t('dashboard.inLegend'), value: 50, icon: 'Goods', bg: 'linear-gradient(135deg,#e6f4ff,#bae0ff)' },
+  { label: t('dashboard.outLegend'), value: 64, icon: 'Sell', bg: 'linear-gradient(135deg,#f6ffed,#d9f7be)' },
+  { label: t('alert.titleField') + t('inventory.noStock'), value: warehouses.value.filter((w) => w.usage < 30 && w.status).length + 2, icon: 'Warning', bg: 'linear-gradient(135deg,#fffbe6,#fff1b8)' },
+  { label: t('warehouse_m.title') + t('alert.titleField'), value: warehouses.value.filter((w) => w.usage > 90).length, icon: 'AlarmClock', bg: 'linear-gradient(135deg,#fff1f0,#ffccc7)' }
 ])
 
 const usageOption = computed(() => ({
@@ -91,16 +100,16 @@ const usageOption = computed(() => ({
 
 const envOption = computed(() => ({
   tooltip: { trigger: 'axis' },
-  legend: { data: ['温度(℃)', '湿度(%)'], top: 0 },
+  legend: { data: [t('dashboard.temp') + '(℃)', t('dashboard.humidity') + '(%)'], top: 0 },
   grid: { left: 40, right: 40, top: 40, bottom: 30 },
   xAxis: { type: 'category', data: warehouses.value.filter((w) => w.status).map((w) => w.name), axisLine: { lineStyle: { color: '#dcdfe6' } } },
   yAxis: [
-    { type: 'value', name: '温度', position: 'left', splitLine: { lineStyle: { color: '#f0f0f0' } } },
-    { type: 'value', name: '湿度', position: 'right' }
+    { type: 'value', name: t('dashboard.temp'), position: 'left', splitLine: { lineStyle: { color: '#f0f0f0' } } },
+    { type: 'value', name: t('dashboard.humidity'), position: 'right' }
   ],
   series: [
-    { name: '温度(℃)', type: 'line', data: warehouses.value.filter((w) => w.status).map((w) => w.temp), smooth: true, itemStyle: { color: '#ff4d4f' } },
-    { name: '湿度(%)', type: 'line', data: warehouses.value.filter((w) => w.status).map((w) => w.humidity), smooth: true, itemStyle: { color: '#1677ff' } }
+    { name: t('dashboard.temp') + '(℃)', type: 'line', data: warehouses.value.filter((w) => w.status).map((w) => w.temp), smooth: true, itemStyle: { color: '#ff4d4f' } },
+    { name: t('dashboard.humidity') + '(%)', type: 'line', data: warehouses.value.filter((w) => w.status).map((w) => w.humidity), smooth: true, itemStyle: { color: '#1677ff' } }
   ]
 }))
 

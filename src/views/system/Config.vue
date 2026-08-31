@@ -1,17 +1,17 @@
 <template>
   <div class="page-container">
     <el-card shadow="hover" class="mb-16">
-      <template #header><span>库存预警</span></template>
+      <template #header><span>{{ $t('alert.titleField') }}</span></template>
       <el-form :model="form" label-width="160px" v-loading="loading">
-        <el-form-item label="库存不足阈值">
+        <el-form-item :label="$t('sys.warnStock')">
           <el-input-number v-model="form.warnStock" :min="0" :max="10000" />
-          <span class="unit">件</span>
+          <span class="unit">{{ $t('dashboard.unitItem') }}</span>
         </el-form-item>
-        <el-form-item label="库存超限阈值">
+        <el-form-item :label="$t('sys.warnExcess')">
           <el-input-number v-model="form.warnExcess" :min="0" :max="100" />
           <span class="unit">%</span>
         </el-form-item>
-        <el-form-item label="滞留预警天数">
+        <el-form-item :label="$t('analytics.retentionWarn')">
           <el-input-number v-model="form.warnTimeout" :min="1" :max="365" />
           <span class="unit">天</span>
         </el-form-item>
@@ -19,21 +19,21 @@
     </el-card>
 
     <el-card shadow="hover" class="mb-16">
-      <template #header><span>安全策略</span></template>
+      <template #header><span>{{ $t('sys.configTitle') }}</span></template>
       <el-form :model="form" label-width="160px" v-loading="loading">
-        <el-form-item label="登录失败锁定次数">
+        <el-form-item :label="$t('sys.loginLockCount')">
           <el-input-number v-model="form.loginLockCount" :min="1" :max="10" />
           <span class="unit">次</span>
         </el-form-item>
-        <el-form-item label="账号锁定时长">
+        <el-form-item :label="$t('sys.loginLockMinutes').replace(/\(.*\)/, '')">
           <el-input-number v-model="form.loginLockMinutes" :min="1" :max="1440" />
           <span class="unit">分钟</span>
         </el-form-item>
-        <el-form-item label="会话超时">
+        <el-form-item :label="$t('sys.sessionTimeout').replace(/\(.*\)/, '')">
           <el-input-number v-model="form.sessionTimeout" :min="1" :max="720" />
           <span class="unit">分钟</span>
         </el-form-item>
-        <el-form-item label="日志保留天数">
+        <el-form-item :label="$t('sys.dataRetention')">
           <el-input-number v-model="form.dataRetention" :min="1" :max="3650" />
           <span class="unit">天</span>
         </el-form-item>
@@ -41,7 +41,7 @@
     </el-card>
 
     <div class="footer-bar">
-      <el-button type="primary" :icon="Check" :loading="saving" @click="save">保存配置</el-button>
+      <el-button type="primary" :icon="Check" :loading="saving" @click="save">{{ $t('btn.save') }}{{ $t('sys.configTitle') }}</el-button>
     </div>
   </div>
 </template>
@@ -50,7 +50,10 @@
 import { ref, reactive } from 'vue'
 import { Check } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { systemApi } from '@/api'
+
+const { t } = useI18n()
 
 const loading = ref(false)
 const saving = ref(false)

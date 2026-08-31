@@ -4,8 +4,7 @@
     <el-card shadow="hover" class="mb-16">
       <div class="page-title">
         <el-icon><Monitor /></el-icon>
-        <span>HC002 实时数据流处理引擎监控</span>
-        <el-tag size="small" type="primary" effect="plain" style="margin-left: 8px">HC002 多源融合</el-tag>
+        <span>{{ $t('analytics.logisticsTitle') }}</span>
       </div>
     </el-card>
 
@@ -17,7 +16,7 @@
             <el-icon :size="24"><component :is="s.icon" /></el-icon>
           </div>
           <div class="stat-info">
-            <div class="stat-label">{{ s.label }}</div>
+            <div class="stat-label">{{ t(s.label) }}</div>
             <div class="stat-value">{{ s.value }}<small>{{ s.unit }}</small></div>
           </div>
         </div>
@@ -30,8 +29,7 @@
         <el-card shadow="hover">
           <template #header>
             <div class="card-header">
-              <span class="card-title">预警准确率</span>
-              <el-tag type="success" size="small" effect="plain">HC002</el-tag>
+              <span class="card-title">{{ $t('analytics.slaRate') }}</span>
             </div>
           </template>
           <BaseChart :option="gaugeOption" height="340px" />
@@ -41,8 +39,7 @@
         <el-card shadow="hover">
           <template #header>
             <div class="card-header">
-              <span class="card-title">近7日异常率趋势</span>
-              <el-tag type="warning" size="small" effect="plain">日均</el-tag>
+              <span class="card-title">{{ $t('analytics.logisticsTitle') }}</span>
             </div>
           </template>
           <BaseChart :option="trendOption" height="340px" />
@@ -54,30 +51,29 @@
     <el-card shadow="hover" class="mt-16">
       <template #header>
         <div class="card-header">
-          <span class="card-title">数据源健康度监控（HC002 12类数据源）</span>
-          <el-tag type="info" size="small" effect="plain">实时</el-tag>
+          <span class="card-title">{{ $t('analytics.logisticsTitle') }}</span>
         </div>
       </template>
       <el-table :data="sources" v-loading="loading" stripe border>
-        <el-table-column prop="id" label="编号" width="80" align="center" />
-        <el-table-column prop="name" label="数据源名称" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="type" label="类型" width="100" align="center">
+        <el-table-column prop="id" :label="$t('field.no')" width="80" align="center" />
+        <el-table-column prop="name" :label="$t('field.name')" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="type" :label="$t('field.type')" width="100" align="center">
           <template #default="{ row }">
-            <el-tag size="small" effect="plain" :type="typeTag(row.type)">{{ row.type }}</el-tag>
+            <el-tag size="small" effect="plain" :type="typeTag(row.type)">{{ translateTransport(row.type) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100" align="center">
+        <el-table-column :label="$t('field.status')" width="100" align="center">
           <template #default="{ row }">
-            <el-tag size="small" :type="statusType(row.status)" effect="light">{{ row.status }}</el-tag>
+            <el-tag size="small" :type="statusType(row.status)" effect="light">{{ translateDataSourceStatus(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="响应延迟" width="120" align="right">
+        <el-table-column :label="$t('field.gps')" width="120" align="right">
           <template #default="{ row }">
             <span :style="{ color: latencyColor(row.latency) }">{{ row.latency }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="dailyVolume" label="日均数据量" width="140" align="right" />
-        <el-table-column prop="accuracy" label="数据准确率" width="140" align="right">
+        <el-table-column prop="dailyVolume" :label="$t('dashboard.dataVolume')" width="140" align="right" />
+        <el-table-column prop="accuracy" :label="$t('analytics.slaRate')" width="140" align="right">
           <template #default="{ row }">
             <span :style="{ color: accuracyColor(row.accuracy), fontWeight: 600 }">{{ row.accuracy }}</span>
           </template>
@@ -89,26 +85,38 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import BaseChart from '@/components/BaseChart.vue'
 import { analyticsApi } from '@/api'
+
+const { t } = useI18n()
 
 const kpis = ref({ avgResponseTime: 0, accuracy: 0, warningRate: 0, predictionAccuracy: 0, dailyVolume: '-', concurrency: 0 })
 const sources = ref([])
 const loading = ref(false)
 
+const TRANSPORT_MAP = { '海运': 'transport.sea', '空运': 'transport.air', '陆运': 'transport.road' }
+function translateTransport(m) { return TRANSPORT_MAP[m] ? t(TRANSPORT_MAP[m]) : m }
+
+const DS_STATUS_MAP = { '在线': 'dataSource.online', '降级': 'dataSource.degraded', '离线': 'shipmentStatus.pendingAssign' }
+function translateDataSourceStatus(s) {
+  const map = { '在线': 'dataSource.online', '降级': 'dataSource.degraded', '离线': 'shipmentStatus.pendingAssign' }
+  const key = map[s]
+  return key ? t(key) : s
+}
+
 const cards = computed(() => {
   const k = kpis.value
   return [
-    { label: '平均查询响应', value: k.avgResponseTime, unit: 'ms', icon: 'Timer', color: '#1677ff' },
-    { label: '预警准确率', value: k.accuracy, unit: '%', icon: 'CircleCheck', color: '#52c41a' },
-    { label: '时效预测准确率', value: k.predictionAccuracy, unit: '%', icon: 'Aim', color: '#722ed1' },
-    { label: '异常率', value: k.warningRate, unit: '%', icon: 'Warning', color: '#faad14' },
-    { label: '日均处理', value: (k.dailyVolume || '-').replace(/TB$/i, ''), unit: 'TB', icon: 'Coin', color: '#13c2c2' },
-    { label: '在线并发', value: k.concurrency ? k.concurrency.toLocaleString() : '-', unit: '', icon: 'Connection', color: '#ff4d4f' }
+    { label: 'dashboard.queryResponse', value: k.avgResponseTime, unit: 'ms', icon: 'Timer', color: '#1677ff' },
+    { label: 'analytics.slaRate', value: k.accuracy, unit: '%', icon: 'CircleCheck', color: '#52c41a' },
+    { label: 'analytics.slaRate', value: k.predictionAccuracy, unit: '%', icon: 'Aim', color: '#722ed1' },
+    { label: 'analytics.slaRate', value: k.warningRate, unit: '%', icon: 'Warning', color: '#faad14' },
+    { label: 'dashboard.dataVolume', value: (k.dailyVolume || '-').replace(/TB$/i, ''), unit: 'TB', icon: 'Coin', color: '#13c2c2' },
+    { label: 'dashboard.onlineConcurrent', value: k.concurrency ? k.concurrency.toLocaleString() : '-', unit: '', icon: 'Connection', color: '#ff4d4f' }
   ]
 })
 
-// 近7日异常率趋势（模拟数据）
 const trendValues = [3, 5, 2, 4, 6, 3, 2]
 const trendDates = computed(() => {
   const out = []
@@ -145,7 +153,7 @@ const gaugeOption = computed(() => ({
         offsetCenter: [0, '65%']
       },
       title: { show: true, offsetCenter: [0, '92%'], fontSize: 13, color: '#909399' },
-      data: [{ value: kpis.value.accuracy || 0, name: '预警准确率' }]
+      data: [{ value: kpis.value.accuracy || 0, name: t('analytics.slaRate') }]
     }
   ]
 }))
@@ -153,14 +161,14 @@ const gaugeOption = computed(() => ({
 const trendOption = computed(() => ({
   tooltip: {
     trigger: 'axis',
-    formatter: (p) => `${p[0].name}<br/>异常率：<b>${p[0].value}%</b>`
+    formatter: (p) => `${p[0].name}<br/>${t('analytics.slaRate')}：<b>${p[0].value}%</b>`
   },
   grid: { left: 45, right: 20, top: 30, bottom: 35 },
   xAxis: { type: 'category', data: trendDates.value, axisLine: { lineStyle: { color: '#dcdfe6' } } },
   yAxis: { type: 'value', name: '%', splitLine: { lineStyle: { color: '#f0f0f0' } } },
   series: [
     {
-      name: '异常率',
+      name: t('analytics.slaRate'),
       type: 'bar',
       data: trendValues,
       barWidth: '42%',

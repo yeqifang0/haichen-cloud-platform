@@ -4,8 +4,7 @@
     <el-card shadow="hover" class="mb-16">
       <div class="page-title">
         <el-icon><Sell /></el-icon>
-        <span>销售出库趋势分析</span>
-        <el-tag size="small" type="success" effect="plain" style="margin-left: 8px">源自销售仓储管理大数据交互系统</el-tag>
+        <span>{{ $t('analytics.salesTitle') }}</span>
       </div>
     </el-card>
 
@@ -17,11 +16,11 @@
             <el-icon :size="24"><component :is="s.icon" /></el-icon>
           </div>
           <div class="stat-info">
-            <div class="stat-label">{{ s.label }}</div>
+            <div class="stat-label">{{ t(s.label) }}</div>
             <div class="stat-value">{{ s.value }}<small>{{ s.unit }}</small></div>
             <div v-if="s.trend !== null" class="stat-trend" :class="s.trend >= 0 ? 'up' : 'down'">
               <el-icon><CaretTop v-if="s.trend >= 0" /><CaretBottom v-else /></el-icon>
-              {{ Math.abs(s.trend).toFixed(2) }}% 较上月
+              {{ Math.abs(s.trend).toFixed(2) }}%
             </div>
           </div>
         </div>
@@ -32,8 +31,7 @@
     <el-card shadow="hover" class="mt-16">
       <template #header>
         <div class="card-header">
-          <span class="card-title">销售金额与数量趋势（双轴分析）</span>
-          <el-tag type="warning" size="small" effect="plain">月度</el-tag>
+          <span class="card-title">{{ $t('analytics.salesTitle') }}</span>
         </div>
       </template>
       <BaseChart v-loading="loading" :option="chartOption" height="380px" />
@@ -43,19 +41,19 @@
     <el-card shadow="hover" class="mt-16">
       <template #header>
         <div class="card-header">
-          <span class="card-title">月度销售明细</span>
-          <el-button text type="primary" size="small" @click="exportData">导出 Excel</el-button>
+          <span class="card-title">{{ $t('analytics.salesTitle') }}</span>
+          <el-button text type="primary" size="small" @click="exportData">{{ $t('btn.export') }}</el-button>
         </div>
       </template>
       <el-table :data="tableData" stripe border>
-        <el-table-column prop="month" label="月份" width="140" />
-        <el-table-column label="销售金额（元）" align="right">
+        <el-table-column prop="month" :label="$t('analytics.month')" width="140" />
+        <el-table-column :label="$t('analytics.amount')" align="right">
           <template #default="{ row }">{{ formatMoney(row.amount) }}</template>
         </el-table-column>
-        <el-table-column label="销售数量（件）" align="right">
+        <el-table-column :label="$t('analytics.qty')" align="right">
           <template #default="{ row }">{{ row.quantity.toLocaleString() }}</template>
         </el-table-column>
-        <el-table-column label="单价均值（元/件）" align="right">
+        <el-table-column :label="$t('analytics.avgPrice')" align="right">
           <template #default="{ row }">{{ formatMoney(Math.round(row.amount / row.quantity)) }}</template>
         </el-table-column>
       </el-table>
@@ -65,9 +63,12 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import BaseChart from '@/components/BaseChart.vue'
 import { analyticsApi } from '@/api'
+
+const { t } = useI18n()
 
 const data = ref({ dates: [], amounts: [], quantities: [] })
 const loading = ref(false)
@@ -83,10 +84,10 @@ const stats = computed(() => {
   const prev = arr[arr.length - 2] || last
   const trend = prev === 0 ? 0 : ((last - prev) / prev) * 100
   return [
-    { label: '总销售金额', value: formatWan(totalAmount), unit: '万', icon: 'Money', color: '#fa8c16', trend: null },
-    { label: '总销售量', value: totalQty.toLocaleString(), unit: '件', icon: 'Box', color: '#1677ff', trend: null },
-    { label: '月均销售额', value: formatWan(avgAmount), unit: '万', icon: 'TrendCharts', color: '#722ed1', trend: null },
-    { label: '环比增长', value: trend.toFixed(2), unit: '%', icon: 'DataLine', color: trend >= 0 ? '#52c41a' : '#ff4d4f', trend: null }
+    { label: 'analytics.amount', value: formatWan(totalAmount), unit: '万', icon: 'Money', color: '#fa8c16', trend: null },
+    { label: 'analytics.qty', value: totalQty.toLocaleString(), unit: '件', icon: 'Box', color: '#1677ff', trend: null },
+    { label: 'analytics.amount', value: formatWan(avgAmount), unit: '万', icon: 'TrendCharts', color: '#722ed1', trend: null },
+    { label: 'analytics.amount', value: trend.toFixed(2), unit: '%', icon: 'DataLine', color: trend >= 0 ? '#52c41a' : '#ff4d4f', trend: null }
   ]
 })
 
@@ -102,33 +103,33 @@ const chartOption = computed(() => {
         const amount = (d.amounts || [])[idx] || 0
         const qty = (d.quantities || [])[idx] || 0
         const unit = qty ? Math.round(amount / qty) : 0
-        return `<b>${date}</b><br/>销售金额：${formatMoney(amount)} 元<br/>销售数量：${qty} 件<br/>均价：${formatMoney(unit)} 元/件`
+        return `<b>${date}</b><br/>${t('analytics.amount')}：${formatMoney(amount)} 元<br/>${t('analytics.qty')}：${qty}<br/>${t('analytics.avgPrice')}：${formatMoney(unit)}`
       }
     },
-    legend: { data: ['销售金额', '销售数量'], right: 20, top: 0 },
+    legend: { data: [t('analytics.amount'), t('analytics.qty')], right: 20, top: 0 },
     grid: { left: 60, right: 60, top: 50, bottom: 40 },
     xAxis: { type: 'category', data: d.dates || [], axisLine: { lineStyle: { color: '#dcdfe6' } } },
     yAxis: [
       {
-        type: 'value', name: '金额(元)', position: 'left',
+        type: 'value', name: t('analytics.amount'), position: 'left',
         axisLabel: { formatter: (v) => v / 10000 + '万' },
         splitLine: { lineStyle: { color: '#f0f0f0' } },
         axisLine: { show: true, lineStyle: { color: '#fa8c16' } }
       },
       {
-        type: 'value', name: '数量(件)', position: 'right',
+        type: 'value', name: t('analytics.qty'), position: 'right',
         splitLine: { show: false },
         axisLine: { show: true, lineStyle: { color: '#1677ff' } }
       }
     ],
     series: [
       {
-        name: '销售金额', type: 'bar', data: d.amounts || [], barWidth: 30,
+        name: t('analytics.amount'), type: 'bar', data: d.amounts || [], barWidth: 30,
         itemStyle: { color: '#fa8c16', borderRadius: [6, 6, 0, 0] },
         label: { show: true, position: 'top', formatter: (p) => formatWan(p.value) + '万', fontSize: 11, color: '#fa8c16' }
       },
       {
-        name: '销售数量', type: 'line', yAxisIndex: 1, data: d.quantities || [],
+        name: t('analytics.qty'), type: 'line', yAxisIndex: 1, data: d.quantities || [],
         smooth: true, symbol: 'circle', symbolSize: 9,
         lineStyle: { width: 3, color: '#1677ff' },
         itemStyle: { color: '#1677ff', borderColor: '#fff', borderWidth: 2 },
@@ -146,7 +147,7 @@ const tableData = computed(() => {
 function formatMoney(v) { return Number(v || 0).toLocaleString('zh-CN') }
 function formatWan(v) { return (Number(v || 0) / 10000).toFixed(1) }
 
-function exportData() { ElMessage.success('已导出销售分析明细为 Excel（演示）') }
+function exportData() { ElMessage.success(t('common.success')) }
 
 async function load() {
   loading.value = true

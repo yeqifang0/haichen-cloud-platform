@@ -3,29 +3,31 @@
     <el-card shadow="hover">
       <div class="toolbar">
         <div>
-          <el-input v-model="query.keyword" placeholder="仓库名称/编码" clearable style="width: 200px" @keyup.enter="load" />
-          <el-select v-model="query.type" placeholder="仓库类型" clearable style="width: 140px; margin-left: 8px" @change="load">
-            <el-option v-for="t in ['中心仓','区域仓','前置仓']" :key="t" :label="t" :value="t" />
+          <el-input v-model="query.keyword" :placeholder="$t('warehouse_m.name') + '/' + $t('warehouse_m.code')" clearable style="width: 200px" @keyup.enter="load" />
+          <el-select v-model="query.type" :placeholder="$t('warehouse_m.type')" clearable style="width: 140px; margin-left: 8px" @change="load">
+            <el-option v-for="t in whTypes" :key="t" :label="translateWhType(t)" :value="t" />
           </el-select>
-          <el-button type="primary" style="margin-left: 8px" @click="load">查询</el-button>
+          <el-button type="primary" style="margin-left: 8px" @click="load">{{ $t('btn.search') }}</el-button>
         </div>
-        <el-button v-permission="'warehouse:goods:add'" type="primary" :icon="Plus" @click="openDialog()">新增仓库</el-button>
+        <el-button v-permission="'warehouse:goods:add'" type="primary" :icon="Plus" @click="openDialog()">{{ $t('btn.add') }}{{ $t('warehouse_m.title') }}</el-button>
       </div>
       <el-table :data="list" v-loading="loading" stripe border>
-        <el-table-column prop="code" label="仓库编码" width="140" />
-        <el-table-column prop="name" label="仓库名称" width="160" />
-        <el-table-column prop="type" label="类型" width="100" />
-        <el-table-column prop="address" label="地址" show-overflow-tooltip />
+        <el-table-column prop="code" :label="$t('warehouse_m.code')" width="140" />
+        <el-table-column prop="name" :label="$t('warehouse_m.name')" width="160" />
+        <el-table-column prop="type" :label="$t('warehouse_m.type')" width="100">
+          <template #default="{ row }">{{ translateWhType(row.type) }}</template>
+        </el-table-column>
+        <el-table-column prop="address" :label="$t('warehouse_m.address')" show-overflow-tooltip />
         <el-table-column prop="area" label="面积(㎡)" width="100" />
-        <el-table-column prop="manager" label="负责人" width="100" />
-        <el-table-column prop="phone" label="联系电话" width="130" />
-        <el-table-column label="状态" width="90">
-          <template #default="{ row }"><el-tag :type="row.status ? 'success' : 'info'" size="small">{{ row.status ? '启用' : '停用' }}</el-tag></template>
+        <el-table-column prop="manager" :label="$t('warehouse_m.manager')" width="100" />
+        <el-table-column prop="phone" :label="$t('warehouse_m.phone')" width="130" />
+        <el-table-column :label="$t('field.status')" width="90">
+          <template #default="{ row }"><el-tag :type="row.status ? 'success' : 'info'" size="small">{{ row.status ? $t('goods_m.enabled') : $t('goods_m.disabled') }}</el-tag></template>
         </el-table-column>
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-button v-permission="'warehouse:goods:edit'" link type="primary" @click="openDialog(row)">编辑</el-button>
-            <el-button v-permission="'warehouse:goods:del'" link type="danger" @click="remove(row)">删除</el-button>
+            <el-button v-permission="'warehouse:goods:edit'" link type="primary" @click="openDialog(row)">{{ $t('btn.edit') }}</el-button>
+            <el-button v-permission="'warehouse:goods:del'" link type="danger" @click="remove(row)">{{ $t('btn.delete') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -42,26 +44,26 @@
       />
     </el-card>
 
-    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑仓库' : '新增仓库'" width="560px">
+    <el-dialog v-model="dialogVisible" :title="form.id ? $t('warehouse_m.addEdit') : $t('btn.add') + $t('warehouse_m.title')" width="560px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="仓库编码" prop="code"><el-input v-model="form.code" placeholder="WH-XXX" /></el-form-item>
-        <el-form-item label="仓库名称" prop="name"><el-input v-model="form.name" /></el-form-item>
-        <el-form-item label="仓库类型" prop="type">
+        <el-form-item :label="$t('warehouse_m.code')" prop="code"><el-input v-model="form.code" placeholder="WH-XXX" /></el-form-item>
+        <el-form-item :label="$t('warehouse_m.name')" prop="name"><el-input v-model="form.name" /></el-form-item>
+        <el-form-item :label="$t('warehouse_m.type')" prop="type">
           <el-select v-model="form.type" style="width: 100%">
-            <el-option v-for="t in ['中心仓','区域仓','前置仓']" :key="t" :label="t" :value="t" />
+            <el-option v-for="t in whTypes" :key="t" :label="translateWhType(t)" :value="t" />
           </el-select>
         </el-form-item>
-        <el-form-item label="仓库地址" prop="address"><el-input v-model="form.address" /></el-form-item>
+        <el-form-item :label="$t('warehouse_m.address')" prop="address"><el-input v-model="form.address" /></el-form-item>
         <el-form-item label="面积(㎡)" prop="area"><el-input-number v-model="form.area" :min="0" style="width: 100%" /></el-form-item>
-        <el-form-item label="负责人" prop="manager"><el-input v-model="form.manager" /></el-form-item>
-        <el-form-item label="联系电话" prop="phone"><el-input v-model="form.phone" /></el-form-item>
-        <el-form-item label="状态">
-          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" active-text="启用" inactive-text="停用" />
+        <el-form-item :label="$t('warehouse_m.manager')" prop="manager"><el-input v-model="form.manager" /></el-form-item>
+        <el-form-item :label="$t('warehouse_m.phone')" prop="phone"><el-input v-model="form.phone" /></el-form-item>
+        <el-form-item :label="$t('field.status')">
+          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" :active-text="$t('goods_m.enabled')" :inactive-text="$t('goods_m.disabled')" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submit">保存</el-button>
+        <el-button @click="dialogVisible = false">{{ $t('btn.cancel') }}</el-button>
+        <el-button type="primary" @click="submit">{{ $t('btn.save') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -69,10 +71,17 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { warehouseApi } from '@/api'
 
+const { t } = useI18n()
+
+const WH_TYPE_MAP = { '中心仓': 'warehouse_m.center', '区域仓': 'warehouse_m.region', '前置仓': 'warehouse_m.front' }
+function translateWhType(v) { return WH_TYPE_MAP[v] ? t(WH_TYPE_MAP[v]) : v }
+
+const whTypes = ['中心仓', '区域仓', '前置仓']
 const list = ref([])
 const total = ref(0)
 const loading = ref(false)
@@ -81,12 +90,12 @@ const dialogVisible = ref(false)
 const formRef = ref()
 const form = reactive({})
 const rules = {
-  code: [{ required: true, message: '请输入仓库编码', trigger: 'blur' }],
-  name: [{ required: true, message: '请输入仓库名称', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择仓库类型', trigger: 'change' }],
-  address: [{ required: true, message: '请输入仓库地址', trigger: 'blur' }],
-  area: [{ required: true, message: '请输入面积', trigger: 'blur' }],
-  manager: [{ required: true, message: '请输入负责人', trigger: 'blur' }]
+  code: [{ required: true, message: t('warehouse_m.code') + 'message.input', trigger: 'blur' }],
+  name: [{ required: true, message: t('warehouse_m.name') + 'message.input', trigger: 'blur' }],
+  type: [{ required: true, message: t('warehouse_m.type') + 'message.select', trigger: 'change' }],
+  address: [{ required: true, message: t('warehouse_m.address') + 'message.input', trigger: 'blur' }],
+  area: [{ required: true, message: 'area.message.input', trigger: 'blur' }],
+  manager: [{ required: true, message: t('warehouse_m.manager') + 'message.input', trigger: 'blur' }]
 }
 
 async function load() {
@@ -114,7 +123,7 @@ async function submit() {
 }
 
 async function remove(row) {
-  await ElMessageBox.confirm(`确认删除仓库「${row.name}」？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(`${t('header.tip')}？`, t('header.tip'), { type: 'warning' })
   const res = await warehouseApi.warehouses.remove(row.id)
   if (res.code === 200) { ElMessage.success(res.msg); load() }
 }

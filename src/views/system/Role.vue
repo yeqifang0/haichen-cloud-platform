@@ -5,23 +5,23 @@
         <el-card shadow="hover">
           <template #header>
             <div class="toolbar">
-              <span>角色列表</span>
-              <el-button v-permission="'system:user:edit'" type="primary" size="small" :icon="Plus" @click="openDialog()">新增角色</el-button>
+              <span>{{ $t('sys.roleTitle') }}</span>
+              <el-button v-permission="'system:user:edit'" type="primary" size="small" :icon="Plus" @click="openDialog()">{{ $t('btn.add') }}{{ $t('sys.roleTitle') }}</el-button>
             </div>
           </template>
           <div v-loading="loading">
             <div v-for="r in list" :key="r.id" :class="['role-item', { active: currentRole && currentRole.id === r.id }]" @click="selectRole(r)">
               <div class="role-head">
                 <span class="role-name">{{ r.name }}</span>
-                <el-tag :type="r.status ? 'success' : 'info'" size="small">{{ r.status ? '启用' : '停用' }}</el-tag>
+                <el-tag :type="r.status ? 'success' : 'info'" size="small">{{ r.status ? $t('sys.enabled') : $t('sys.disabled') }}</el-tag>
               </div>
               <div class="role-desc">{{ r.desc || '—' }}</div>
               <div class="role-actions">
-                <el-button v-permission="'system:user:edit'" link type="primary" size="small" @click.stop="openDialog(r)">编辑</el-button>
-                <el-button v-permission="'system:user:edit'" link type="danger" size="small" @click.stop="remove(r)">删除</el-button>
+                <el-button v-permission="'system:user:edit'" link type="primary" size="small" @click.stop="openDialog(r)">{{ $t('btn.edit') }}</el-button>
+                <el-button v-permission="'system:user:edit'" link type="danger" size="small" @click.stop="remove(r)">{{ $t('btn.delete') }}</el-button>
               </div>
             </div>
-            <el-empty v-if="!list.length" description="暂无角色" :image-size="60" />
+            <el-empty v-if="!list.length" :description="$t('common.noData')" :image-size="60" />
           </div>
         </el-card>
       </el-col>
@@ -29,27 +29,27 @@
         <el-card shadow="hover">
           <template #header>
             <div class="toolbar">
-              <span>权限分配{{ currentRole ? ' · ' + currentRole.name : '' }}</span>
-              <el-button v-if="currentRole" v-permission="'system:user:edit'" type="primary" size="small" :icon="Check" @click="savePerms">保存权限</el-button>
+              <span>{{ $t('sys.roleTitle') }}{{ currentRole ? ' · ' + currentRole.name : '' }}</span>
+              <el-button v-if="currentRole" v-permission="'system:user:edit'" type="primary" size="small" :icon="Check" @click="savePerms">{{ $t('btn.save') }}</el-button>
             </div>
           </template>
-          <el-empty v-if="!currentRole" description="请选择左侧角色进行权限分配" :image-size="80" />
+          <el-empty v-if="!currentRole" :description="$t('common.noData')" :image-size="80" />
           <template v-else>
-            <el-alert v-if="allPermMode" title="该角色拥有全部权限（*）" type="success" :closable="false" show-icon style="margin-bottom: 16px" />
+            <el-alert v-if="allPermMode" :title="$t('sys.roleTitle') + ' *'" type="success" :closable="false" show-icon style="margin-bottom: 16px" />
             <el-tree ref="permTreeRef" :data="permData" show-checkbox node-key="code" check-strictly default-expand-all :props="{ label: 'label' }" />
           </template>
         </el-card>
       </el-col>
     </el-row>
 
-    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑角色' : '新增角色'" width="480px">
+    <el-dialog v-model="dialogVisible" :title="form.id ? $t('btn.edit') + $t('sys.roleTitle') : $t('btn.add') + $t('sys.roleTitle')" width="480px">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="角色编码" prop="code"><el-input v-model="form.code" /></el-form-item>
-        <el-form-item label="角色名称" prop="name"><el-input v-model="form.name" /></el-form-item>
-        <el-form-item label="描述"><el-input v-model="form.desc" type="textarea" :rows="2" /></el-form-item>
-        <el-form-item label="状态"><el-switch v-model="form.status" :active-value="1" :inactive-value="0" active-text="启用" inactive-text="停用" /></el-form-item>
+        <el-form-item :label="$t('field.code')" prop="code"><el-input v-model="form.code" /></el-form-item>
+        <el-form-item :label="$t('field.name')" prop="name"><el-input v-model="form.name" /></el-form-item>
+        <el-form-item :label="$t('field.description')"><el-input v-model="form.desc" type="textarea" :rows="2" /></el-form-item>
+        <el-form-item :label="$t('sys.status')"><el-switch v-model="form.status" :active-value="1" :inactive-value="0" :active-text="$t('sys.enabled')" :inactive-text="$t('sys.disabled')" /></el-form-item>
       </el-form>
-      <template #footer><el-button @click="dialogVisible = false">取消</el-button><el-button type="primary" @click="submit">保存</el-button></template>
+      <template #footer><el-button @click="dialogVisible = false">{{ $t('btn.cancel') }}</el-button><el-button type="primary" @click="submit">{{ $t('btn.save') }}</el-button></template>
     </el-dialog>
   </div>
 </template>
@@ -58,7 +58,10 @@
 import { ref, reactive, nextTick } from 'vue'
 import { Plus, Check } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { systemApi } from '@/api'
+
+const { t } = useI18n()
 
 const list = ref([])
 const loading = ref(false)
@@ -71,8 +74,8 @@ const dialogVisible = ref(false)
 const formRef = ref()
 const form = reactive({})
 const rules = {
-  code: [{ required: true, message: '请输入角色编码', trigger: 'blur' }],
-  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }]
+  code: [{ required: true, message: t('login.rulesUsername').replace(t('sys.username'), t('field.code')), trigger: 'blur' }],
+  name: [{ required: true, message: t('login.rulesUsername').replace(t('sys.username'), t('field.name')), trigger: 'blur' }]
 }
 
 async function loadPermissions() {
@@ -125,7 +128,7 @@ async function submit() {
   })
 }
 async function remove(row) {
-  await ElMessageBox.confirm(`确认删除角色「${row.name}」？`, '提示', { type: 'warning' })
+  await ElMessageBox.confirm(t('common.confirmDelete'), t('common.confirmTitle'), { type: 'warning' })
   const res = await systemApi.roles.remove(row.id)
   if (res.code === 200) {
     ElMessage.success(res.msg)

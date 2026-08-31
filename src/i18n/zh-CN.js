@@ -208,5 +208,26 @@ export default {
     confirmTitle: '提示',
     confirmDelete: '确定要删除吗？',
     language: 'English'
-  }
+  },
+
+  // ===== 完整模块翻译 =====
+  order: { title: '单据管理', detailTitle: '单据详情', add: '新增单据', no: '单据号', type: '单据类型', customer: '客户', supplier: '供应商', partner: '往来方', warehouse: '仓库', expectDate: '预计日期', itemCount: '数量', amount: '金额(元)', status: '状态', creator: '创建人', createTime: '创建时间', purchaseIn: '采购入库', salesOut: '销售出库', transfer: '调拨单', ret: '退货单', pendingAudit: '待审核', audited: '已审核', picked: '拣货完成', shipped: '已发运', done: '已完成', pass: '通过', reject: '驳回', trackLogistics: '物流追踪' },
+  warehouse_m: { title: '仓库管理', list: '仓库列表', monitor: '仓库监控', addEdit: '编辑仓库', name: '仓库名称', code: '仓库编码', address: '仓库地址', manager: '负责人', phone: '联系电话', type: '仓库类型', center: '中心仓', region: '区域仓', front: '前置仓', zoneTitle: '库区管理', zoneName: '库区名称', zoneCode: '库区编码', zoneType: '库区类型', zoneStorage: '存储区', zonePick: '拣货区', zoneTemp: '暂存区', zoneDefective: '不良品区' },
+  goods_m: { title: '货品管理', addEdit: '编辑货品', sku: 'SKU编码', name: '货品名称', spec: '规格型号', category: '品类', storageDevice: '储能设备', powerElec: '电力电子', ctrlDevice: '控制设备', structPart: '结构件', unit: '单位', shelfLife: '保质期(天)', storageCond: '存储条件', manufacturer: '生产厂商', price: '单价', status: '状态', enabled: '启用', disabled: '停用' },
+  inventory: { title: '库存查询', batch: '批次号', warehouse: '仓库', zone: '库区', location: '库位', inStock: '在库数量', available: '可用数量', locked: '锁定', updateTime: '更新时间', noStock: '暂无库存' },
+  partner: { title: '客户/供应商', type: '类型', customer: '客户', supplier: '供应商', level: '等级', contact: '联系人', phone: '电话', address: '地址', credit: '信用', totalAmount: '累计交易额(元)', lastOrder: '最近交易', visitTitle: '拜访记录', noVisit: '暂无拜访记录', strategic: '战略', levelA: 'A级', levelB: 'B级', levelC: 'C级', excellent: '优秀', good: '良好', avg: '一般' },
+  vehicle: { title: '车辆管理', plate: '车牌号', model: '车型', capacity: '载重', driver: '司机', phone: '联系电话', gps: 'GPS状态', status: '车辆状态', lastUpdate: '最后更新', self: '自有', affiliated: '挂靠', online: '在线', offline: '离线', idle: '空闲', repairing: '维修', inTransit: '运输中', addEdit: '编辑车辆' },
+  driver_m: { title: '司机管理', license: '驾照', plate: '绑定车牌', age: '年龄', phone: '联系电话', joinDate: '入职日期', trips: '累计趟数', status: '状态', onJob: '在职', onLeave: '休假', addEdit: '编辑司机', name: '姓名' },
+  dispatch: { title: '调度管理', no: '调度单号', shipNo: '运单号', fromCity: '起点', toCity: '终点', vehicle: '车辆', driver: '司机', cargo: '货物', weight: '重量', status: '调度状态', pending: '待调度', assigned: '已指派', inTransit: '运输中', done: '已完成', assign: '指派车辆', noIdle: '暂无空闲车辆', selectIdle: '请选择空闲车辆', selectDriver: '请选择司机', add: '新增调度' },
+  track: { title: '实时物流追踪', trackingNo: '运单号', fromCity: '起点', toCity: '终点', carrier: '承运商', vehicle: '车牌号', status: '状态', progress: '进度', departed: '已装车发运', inTransit: '运输中', arrived: '抵达', signed: '已签收' },
+  alert: { title: '智能预警中心', level: '级别', severe: '严重', warn: '警告', tip: '提示', titleField: '预警标题', type: '类型', abnormalType: '异常类型', content: '内容', status: '状态', pending: '待处理', handling: '处理中', closed: '已闭环', handler: '处理人', suggestion: '处理建议', detail: '异常详情', handle: '处理' },
+  dataSource: { title: '多源数据接入', name: '数据源名称', type: '类型', status: '状态', latency: '响应延迟', dailyVolume: '日处理量', accuracy: '数据准确率', sea: '海运', air: '空运', road: '陆运', online: '在线', degraded: '降级' },
+  finance: { title: '财务对账中心', receivable: '应收对账', payable: '应付对账', summary: '财务总览', billNo: '账单号', customer: '客户', supplier: '供应商', period: '账期', amount: '金额', pendingRecon: '待对账', reconciled: '已对账', pendingPay: '待付款', paid: '已付款', pendingRecv: '待收款', received: '已收款' },
+  sys: { userTitle: '用户管理', roleTitle: '角色权限', logTitle: '操作日志', configTitle: '参数设置', dictTitle: '数据字典', username: '用户名', realName: '姓名', role: '角色', dept: '部门', phone: '电话', status: '状态', enabled: '启用', disabled: '停用', lastLogin: '最近登录', module: '模块', action: '操作', ip: 'IP地址', time: '时间', result: '结果', success: '成功', fail: '失败', warnStock: '库存不足阈值', warnExcess: '库存超限阈值', warnTimeout: '异常超时(分钟)', sessionTimeout: '会话超时(分钟)', dataRetention: '日志保留天数', loginLockCount: '登录失败锁定次数', loginLockMinutes: '账号锁定时长(分钟)' },
+  bench: { title: '个人工作台', todo: '待办事项', myAlert: '我的预警', shipTrack: '物流追踪', custVisit: '客户拜访', noTodo: '暂无待办', noAlert: '暂无预警', noTrack: '暂无轨迹数据', noVisit: '暂无拜访记录', noIdle: '暂无空闲车辆', tryMe: '试试问我：', orderTodo: '单据审核提醒', pendingAudit: '待审核' },
+  profile: { title: '个人中心', basicInfo: '基本信息', changePwd: '修改密码', oldPwd: '原密码', newPwd: '新密码', confirmPwd: '确认密码', pwdOk: '密码强度合格' },
+  analytics: { purchaseTitle: '采购入库分析', salesTitle: '销售出库分析', retentionTitle: '滞留时长分析', logisticsTitle: '物流时效分析', month: '月份', amount: '金额', qty: '数量', avgPrice: '单价均值（元/件）', lastIn: '入库日期', lastOut: '最后出库日期', retentionDays: '滞留天数', retentionDetail: '滞留详情', retentionWarn: '滞留预警天数', avgRate: '平均时效', slaRate: '准时率' },
+  smartQuery: { title: '智能查询助手', history: '历史查询', noHistory: '暂无历史', placeholder: '输入您的问题，例如：昨天发往成都的货到哪了？' },
+  btn: { search: '查询', reset: '重置', add: '新增', edit: '编辑', delete: '删除', save: '保存', cancel: '取消', confirm: '确认', close: '关闭', submit: '提交', view: '查看', detail: '详情', track: '物流追踪', audit: '审核', pass: '通过', reject: '驳回', import: '导入', export: '导出', assign: '指派车辆', syncMobile: '同步移动端', batchDel: '批量删除', changePwd: '修改密码' },
+  field: { no: '编号', name: '名称', code: '编码', type: '类型', status: '状态', createTime: '创建时间', updateTime: '更新时间', creator: '创建人', remark: '备注', description: '描述', phone: '电话', mobile: '手机', address: '地址', temp: '温度', humidity: '湿度', operator: '负责人', gps: 'GPS', ip: 'IP地址' }
 }
