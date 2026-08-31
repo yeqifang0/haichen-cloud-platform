@@ -85,6 +85,9 @@ const activeMenu = computed(() => route.path)
   font-size: 16px;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 .menu-scroll {
   flex: 1;

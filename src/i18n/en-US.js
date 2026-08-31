@@ -2,7 +2,7 @@
 export default {
   // === App ===
   app: {
-    name: 'Haichen Cloud Platform',
+    name: 'Haichen Cloud',
     fullName: 'Haichen Cloud Platform Management System',
     subtitle: 'Shanghai Haichen Zhichu Technology Co., Ltd. · Unified Management Console',
     copyright: '© 2026 Shanghai Haichen Zhichu Technology Co., Ltd. All Rights Reserved',
@@ -128,6 +128,13 @@ export default {
     tagHC002: 'HC002 Sources',
     tagAlertAccuracy: '92% Accuracy',
     tagYearTotal: 'YTD',
+    // KPI labels
+    todayIn: 'Inbound Today',
+    todayOut: 'Outbound Today',
+    lowStock: 'Low Stock Alert',
+    inTransit: 'In Transit',
+    abnormal: 'Pending Alerts',
+    avgRate: 'Avg Utilization',
     // Warehouse
     warehouseStatus: 'Warehouse Status',
     details: 'Details',

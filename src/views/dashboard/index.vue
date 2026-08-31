@@ -3,7 +3,7 @@
     <!-- 欢迎横幅 -->
     <div class="welcome-banner">
       <div class="welcome-text">
-        <h2>{{ greeting }}{{ userStore.userInfo?.name || $t('dashboard.admin') }} 👋</h2>
+        <h2>{{ greeting }}, {{ userNameDisplay }} 👋</h2>
         <p>{{ $t('dashboard.welcomeBack', { date: today }) }}</p>
       </div>
       <div class="welcome-stats">
@@ -189,6 +189,21 @@ const kpis = computed(() => {
 })
 
 const activeShipments = computed(() => shipments.value.filter((s) => s.status !== '已签收'))
+
+// 用户名 i18n 映射：mock 存中文，英文环境下需要翻译
+const NAME_MAP = {
+  '系统管理员': 'System Admin',
+  '王经理': 'Manager Wang',
+  '李仓管': 'Li Cang',
+  '张调度': 'Zhang Dispatch',
+  '蔡财务': 'Cai Finance'
+}
+const userNameDisplay = computed(() => {
+  const raw = userStore.userInfo?.name || ''
+  if (!raw) return t('dashboard.admin')
+  if (getLocale() === 'en-US') return NAME_MAP[raw] || raw
+  return raw
+})
 
 // 问候语：根据当前时间 + locale 计算
 const greeting = computed(() => {

@@ -22,8 +22,8 @@
         <div class="user-info">
           <el-avatar :size="32" class="avatar">{{ avatarText }}</el-avatar>
           <div class="user-meta">
-            <div class="user-name">{{ userStore.userInfo?.name }}</div>
-            <div class="user-role">{{ userStore.roles?.[0] || $t('header.user') }}</div>
+            <div class="user-name">{{ nameDisplay }}</div>
+            <div class="user-role">{{ roleDisplay }}</div>
           </div>
           <el-icon><CaretBottom /></el-icon>
         </div>
@@ -75,7 +75,21 @@ const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
 
-const avatarText = computed(() => userStore.userInfo?.name?.charAt(0) || 'U')
+// 用户名/角色 i18n 映射（mock 存中文，英文环境需翻译）
+const NAME_MAP = { '系统管理员': 'System Admin', '王经理': 'Manager Wang', '李仓管': 'Li Cang', '张调度': 'Zhang Dispatch', '蔡财务': 'Cai Finance' }
+const ROLE_MAP = { '系统管理员': 'Super Admin', '管理员': 'Admin', '管理层': 'Manager', '仓管': 'Warehouse', '物流调度': 'Logistics', '财务': 'Finance' }
+function isEn() { return getLocale() === 'en-US' }
+const nameDisplay = computed(() => {
+  const raw = userStore.userInfo?.name || ''
+  if (!raw) return t('dashboard.admin')
+  return isEn() ? (NAME_MAP[raw] || raw) : raw
+})
+const roleDisplay = computed(() => {
+  const raw = userStore.roles?.[0] || ''
+  if (!raw) return t('header.user')
+  return isEn() ? (ROLE_MAP[raw] || raw) : raw
+})
+const avatarText = computed(() => nameDisplay.value?.charAt(0).toUpperCase() || 'U')
 
 // 当前语言显示的切换标签：中文环境显示 "English"，英文环境显示 "中文"
 const currentLangLabel = computed(() => {

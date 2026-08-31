@@ -128,6 +128,13 @@ export default {
     tagHC002: 'HC002 多源',
     tagAlertAccuracy: '预警准确率 92%',
     tagYearTotal: '本年累计',
+    // KPI 卡片 label（mock 里的 KPI key 映射）
+    todayIn: '今日入库',
+    todayOut: '今日出库',
+    lowStock: '库存不足预警',
+    inTransit: '在途运单',
+    abnormal: '待处理异常',
+    avgRate: '平均库容率',
     // 仓库监控
     warehouseStatus: '仓库库容监控',
     details: '详情',
