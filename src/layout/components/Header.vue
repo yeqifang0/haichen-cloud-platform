@@ -8,9 +8,14 @@
       <Breadcrumb />
     </div>
     <div class="header-right">
+      <!-- 语言切换按钮 -->
+      <div class="lang-switch" @click="handleToggleLang">
+        <el-icon><Switch /></el-icon>
+        <span>{{ currentLangLabel }}</span>
+      </div>
       <GlobalSearch />
       <NotificationBell />
-      <el-tooltip content="刷新缓存数据" placement="bottom">
+      <el-tooltip :content="$t('header.refreshCache')" placement="bottom">
         <el-icon class="header-icon" @click="handleRefresh"><Refresh /></el-icon>
       </el-tooltip>
       <el-dropdown @command="handleCommand">
@@ -18,35 +23,35 @@
           <el-avatar :size="32" class="avatar">{{ avatarText }}</el-avatar>
           <div class="user-meta">
             <div class="user-name">{{ userStore.userInfo?.name }}</div>
-            <div class="user-role">{{ userStore.roles?.[0] || '用户' }}</div>
+            <div class="user-role">{{ userStore.roles?.[0] || $t('header.user') }}</div>
           </div>
           <el-icon><CaretBottom /></el-icon>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="profile">个人中心</el-dropdown-item>
-            <el-dropdown-item command="password">修改密码</el-dropdown-item>
-            <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
+            <el-dropdown-item command="profile">{{ $t('header.profile') }}</el-dropdown-item>
+            <el-dropdown-item command="password">{{ $t('header.changePassword') }}</el-dropdown-item>
+            <el-dropdown-item divided command="logout">{{ $t('header.logout') }}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
     </div>
 
-    <el-dialog v-model="pwdVisible" title="修改密码" width="420px">
+    <el-dialog v-model="pwdVisible" :title="$t('header.changePassword')" width="420px">
       <el-form :model="pwdForm" label-width="90px">
-        <el-form-item label="原密码">
+        <el-form-item :label="$t('header.oldPassword')">
           <el-input v-model="pwdForm.oldPassword" type="password" show-password />
         </el-form-item>
-        <el-form-item label="新密码">
-          <el-input v-model="pwdForm.newPassword" type="password" show-password placeholder="8-20位含大小写+数字" />
+        <el-form-item :label="$t('header.newPassword')">
+          <el-input v-model="pwdForm.newPassword" type="password" show-password :placeholder="$t('header.pwdPlaceholder')" />
         </el-form-item>
-        <el-form-item label="确认密码">
+        <el-form-item :label="$t('header.confirmPassword')">
           <el-input v-model="pwdForm.confirm" type="password" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="pwdVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitPwd">确认</el-button>
+        <el-button @click="pwdVisible = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="submitPwd">{{ $t('common.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -55,19 +60,32 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useAppStore, useUserStore } from '@/stores'
 import { authApi } from '@/api'
 import { resetDB } from '@/mock'
+import { toggleLocale, getLocale } from '@/i18n'
 import Breadcrumb from './Breadcrumb.vue'
 import NotificationBell from './NotificationBell.vue'
 import GlobalSearch from './GlobalSearch.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
 
 const avatarText = computed(() => userStore.userInfo?.name?.charAt(0) || 'U')
+
+// 当前语言显示的切换标签：中文环境显示 "English"，英文环境显示 "中文"
+const currentLangLabel = computed(() => {
+  const lang = getLocale()
+  return lang === 'zh-CN' ? 'English' : '中文'
+})
+
+function handleToggleLang() {
+  toggleLocale()
+}
 
 const pwdVisible = ref(false)
 const pwdForm = ref({ oldPassword: '', newPassword: '', confirm: '' })
@@ -79,7 +97,7 @@ async function handleCommand(cmd) {
     pwdVisible.value = true
   } else if (cmd === 'logout') {
     try {
-      await ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' })
+      await ElMessageBox.confirm(t('header.confirmLogout'), t('header.tip'), { type: 'warning' })
       userStore.logout()
       router.push('/login')
     } catch (e) {
@@ -90,7 +108,7 @@ async function handleCommand(cmd) {
 
 async function submitPwd() {
   if (pwdForm.value.newPassword !== pwdForm.value.confirm) {
-    ElMessage.error('两次输入的密码不一致')
+    ElMessage.error(t('header.pwdMismatch'))
     return
   }
   const res = await authApi.changePassword(pwdForm.value)
@@ -103,9 +121,9 @@ async function submitPwd() {
 
 async function handleRefresh() {
   try {
-    await ElMessageBox.confirm('将清空本地模拟数据并恢复初始数据，确认继续？', '刷新缓存', { type: 'warning' })
+    await ElMessageBox.confirm(t('header.confirmRefresh'), t('header.cacheTitle'), { type: 'warning' })
     resetDB()
-    ElMessage.success('数据已重置，即将刷新页面')
+    ElMessage.success(t('header.cacheReset'))
     setTimeout(() => location.reload(), 800)
   } catch (e) {
     /* cancelled */
@@ -153,6 +171,33 @@ async function handleRefresh() {
 .header-icon:hover {
   color: #4096ff;
 }
+
+/* ===== 语言切换按钮 ===== */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(22, 119, 255, 0.08);
+  border: 1px solid rgba(22, 119, 255, 0.25);
+  transition: all 0.2s;
+  white-space: nowrap;
+  user-select: none;
+}
+.lang-switch:hover {
+  color: #4096ff;
+  background: rgba(22, 119, 255, 0.18);
+  border-color: rgba(22, 119, 255, 0.5);
+}
+.lang-switch .el-icon {
+  font-size: 14px;
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -206,6 +251,10 @@ async function handleRefresh() {
   }
   .user-meta {
     display: none;
+  }
+  .lang-switch {
+    padding: 4px 8px;
+    font-size: 12px;
   }
 }
 </style>

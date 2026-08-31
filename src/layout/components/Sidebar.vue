@@ -2,7 +2,7 @@
   <div class="sidebar-container" :class="{ collapsed: appStore.sidebarCollapsed }">
     <div class="logo">
       <div class="logo-icon">HC</div>
-      <span v-show="!appStore.sidebarCollapsed" class="logo-text">海辰智汇云平台</span>
+      <span v-show="!appStore.sidebarCollapsed" class="logo-text">{{ $t('app.name') }}</span>
     </div>
     <el-scrollbar class="menu-scroll">
       <el-menu

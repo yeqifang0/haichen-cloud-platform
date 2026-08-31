@@ -5,60 +5,65 @@
       <div class="bg-circle c2"></div>
       <div class="bg-circle c3"></div>
     </div>
+    <!-- 登录页语言切换按钮 -->
+    <div class="login-lang-switch" @click="handleToggleLang">
+      <el-icon><Switch /></el-icon>
+      <span>{{ currentLangLabel }}</span>
+    </div>
     <div class="login-box">
       <div class="login-left">
         <div class="brand">
           <div class="brand-logo">HC</div>
-          <h1>海辰智汇云平台</h1>
+          <h1>{{ $t('app.name') }}</h1>
         </div>
-        <p class="brand-sub">上海海辰智储科技有限公司 · 统一管理后台</p>
+        <p class="brand-sub">{{ $t('app.subtitle') }}</p>
         <div class="features">
           <div class="feature-item">
             <el-icon><Box /></el-icon>
-            <span>仓储管理中心 · 全链路库存可视</span>
+            <span>{{ $t('login.brand1') }}</span>
           </div>
           <div class="feature-item">
             <el-icon><Van /></el-icon>
-            <span>物流信息中心 · 多源数据实时追踪</span>
+            <span>{{ $t('login.brand2') }}</span>
           </div>
           <div class="feature-item">
             <el-icon><DataAnalysis /></el-icon>
-            <span>大数据分析中心 · 智能预警与决策</span>
+            <span>{{ $t('login.brand3') }}</span>
           </div>
           <div class="feature-item">
             <el-icon><Connection /></el-icon>
-            <span>融合 HC002 · 打通仓储-物流全链路</span>
+            <span>{{ $t('login.brand4') }}</span>
           </div>
         </div>
-        <p class="copyright">© 2026 上海海辰智储科技有限公司 版权所有</p>
+        <p class="copyright">{{ $t('app.copyright') }}</p>
       </div>
       <div class="login-right">
-        <h2>欢迎登录</h2>
-        <p class="login-tip">请输入账号密码进入管理后台</p>
-        <el-form ref="formRef" :model="form" :rules="rules" size="large" @keyup.enter="handleLogin">
+        <h2>{{ $t('login.welcomeTitle') }}</h2>
+        <p class="login-tip">{{ $t('login.tip') }}</p>
+        <el-form ref="formRef" :model="form" :rules="i18nRules" size="large" @keyup.enter="handleLogin">
           <el-form-item prop="username">
-            <el-input v-model="form.username" placeholder="用户名" :prefix-icon="User" />
+            <el-input v-model="form.username" :placeholder="$t('login.username')" :prefix-icon="User" />
           </el-form-item>
           <el-form-item prop="password">
-            <el-input v-model="form.password" type="password" placeholder="密码" :prefix-icon="Lock" show-password />
+            <el-input v-model="form.password" type="password" :placeholder="$t('login.password')" :prefix-icon="Lock" show-password />
           </el-form-item>
           <el-form-item prop="captcha">
             <div class="captcha-row">
-              <el-input v-model="form.captcha" placeholder="验证码" :prefix-icon="Key" />
+              <el-input v-model="form.captcha" :placeholder="$t('login.captcha')" :prefix-icon="Key" />
               <div class="captcha-code" @click="refreshCaptcha">{{ captcha }}</div>
             </div>
           </el-form-item>
           <div class="login-options">
-            <el-checkbox v-model="form.remember">记住登录态</el-checkbox>
-            <el-link type="primary" :underline="false">忘记密码？</el-link>
+            <el-checkbox v-model="form.remember">{{ $t('login.remember') }}</el-checkbox>
+            <el-link type="primary" :underline="false">{{ $t('login.forgot') }}</el-link>
           </div>
-          <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin">登 录</el-button>
+          <el-button type="primary" class="login-btn" :loading="loading" @click="handleLogin">{{ $t('login.button') }}</el-button>
         </el-form>
         <div class="quick-accounts">
-          <div class="qa-title">快速登录</div>
+          <div class="qa-title">{{ $t('login.quickLogin') }}</div>
           <div class="qa-list">
             <span v-for="a in accounts" :key="a.username" class="qa-item" @click="fillAccount(a)">
-              {{ a.label }}
+              {{ $t(a.labelKey) }}
             </span>
           </div>
         </div>
@@ -68,32 +73,49 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { User, Lock, Key } from '@element-plus/icons-vue'
+import { User, Lock, Key, Switch } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores'
+import { toggleLocale, getLocale } from '@/i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 const userStore = useUserStore()
 const formRef = ref()
 const loading = ref(false)
 const captcha = ref('')
 
+const currentLangLabel = computed(() => {
+  const lang = getLocale()
+  return lang === 'zh-CN' ? 'English' : '中文'
+})
+
+function handleToggleLang() {
+  toggleLocale()
+}
+
 const accounts = [
-  { label: '管理员', username: 'admin', password: 'Admin@123' },
-  { label: '管理层', username: 'wangjingli', password: 'Manager@123' },
-  { label: '仓管', username: 'liCang', password: 'Wh@123456' },
-  { label: '物流调度', username: 'zhangDiao', password: 'Lg@123456' },
-  { label: '财务', username: 'caiWu', password: 'Fin@12345' }
+  { labelKey: 'role.admin', username: 'admin', password: 'Admin@123' },
+  { labelKey: 'role.manager', username: 'wangjingli', password: 'Manager@123' },
+  { labelKey: 'role.warehouse', username: 'liCang', password: 'Wh@123456' },
+  { labelKey: 'role.logistics', username: 'zhangDiao', password: 'Lg@123456' },
+  { labelKey: 'role.finance', username: 'caiWu', password: 'Fin@12345' }
 ]
 
 const form = reactive({ username: 'admin', password: 'Admin@123', captcha: '', remember: true })
-const rules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  captcha: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+
+// 动态生成带 i18n 的 rules
+function buildRules() {
+  return {
+    username: [{ required: true, message: t('login.rulesUsername'), trigger: 'blur' }],
+    password: [{ required: true, message: t('login.rulesPassword'), trigger: 'blur' }],
+    captcha: [{ required: true, message: t('login.rulesCaptcha'), trigger: 'blur' }]
+  }
 }
+const i18nRules = computed(buildRules)
 
 function refreshCaptcha() {
   captcha.value = Math.random().toString(36).slice(2, 6).toUpperCase()
@@ -109,10 +131,11 @@ function fillAccount(a) {
 
 async function handleLogin() {
   if (!formRef.value) return
+  const currentRules = buildRules()
   await formRef.value.validate(async (valid) => {
     if (!valid) return
     if (form.captcha.toUpperCase() !== captcha.value) {
-      ElMessage.error('验证码错误')
+      ElMessage.error(t('login.captchaError'))
       refreshCaptcha()
       form.captcha = ''
       return
@@ -176,6 +199,38 @@ async function handleLogin() {
   top: 40%;
   left: 50%;
 }
+
+/* 登录页语言切换 */
+.login-lang-switch {
+  position: fixed;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(6px);
+  transition: all 0.2s;
+  white-space: nowrap;
+  user-select: none;
+  z-index: 10;
+}
+.login-lang-switch:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+.login-lang-switch .el-icon {
+  font-size: 14px;
+}
+
 .login-box {
   display: flex;
   width: 880px;
@@ -373,6 +428,12 @@ async function handleLogin() {
     padding: 5px 10px;
     font-size: 13px;
     border-radius: 6px;
+  }
+  .login-lang-switch {
+    top: 12px;
+    right: 12px;
+    font-size: 12px;
+    padding: 5px 10px;
   }
 }
 </style>
