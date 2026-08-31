@@ -98,7 +98,10 @@ export default {
 
   // === 仪表盘 ===
   dashboard: {
+    greetingDawn: '凌晨好',
     greetingMorning: '早上好',
+    greetingForenoon: '上午好',
+    greetingNoon: '中午好',
     greetingAfternoon: '下午好',
     greetingEvening: '晚上好',
     greeting: '您好',
@@ -106,30 +109,62 @@ export default {
     dataVolume: '数据接入量(今日)',
     queryResponse: '查询响应',
     onlineConcurrent: '在线并发',
-    todayIn: '今日入库',
-    todayOut: '今日出库',
-    lowStock: '库存不足预警',
-    inTransit: '在途运单',
-    abnormal: '待处理异常',
-    avgRate: '平均库容率',
-    trendUp: '较昨日',
-    trendDown: '较昨日',
+    // KPI units
+    unitItem: '件',
+    unitOrder: '单',
+    unitRecord: '条',
+    unitPercent: '%',
+    // 趋势
+    trendCompare: '较昨日',
+    // 图表
     inOutTrend: '仓储出入库趋势（近7日）',
+    inLegend: '入库',
+    outLegend: '出库',
     transportMode: '运输方式占比',
     alertTrend: '物流异常趋势（近7日）',
+    alertLegend: '异常数',
     topCustomers: '客户交易额 TOP5（万元）',
+    tagFinance: '融合销售仓储系统',
+    tagHC002: 'HC002 多源',
+    tagAlertAccuracy: '预警准确率 92%',
+    tagYearTotal: '本年累计',
+    // 仓库监控
     warehouseStatus: '仓库库容监控',
-    inTransitShipments: '在途运单实时状态',
     details: '详情',
-    track: '物流追踪',
-    warehouse: '仓库',
     temp: '温度',
     humidity: '湿度',
-    status: '状态',
+    // 在途运单
+    inTransitShipments: '在途运单实时状态',
+    track: '物流追踪',
     trackingNo: '运单号',
     route: '线路',
+    mode: '方式',
     progress: '进度',
-    eta: '预计到达'
+    status: '状态',
+    eta: '预计到达',
+    admin: '管理员'
+  },
+
+  // === 运输方式 ===
+  transport: {
+    road: '陆运',
+    air: '空运',
+    sea: '海运'
+  },
+
+  // === 运单状态 ===
+  shipmentStatus: {
+    inTransit: '运输中',
+    delivered: '已签收',
+    pendingShip: '待发运',
+    pendingAssign: '待指派'
+  },
+
+  // === 仓库类型 ===
+  warehouseType: {
+    center: '中心仓',
+    region: '区域仓',
+    front: '前置仓'
   },
 
   // === 角色 ===

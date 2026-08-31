@@ -9,7 +9,7 @@
           :class="{ active: isActive(tab) }"
           @click="clickTab(tab)"
         >
-          <span>{{ tab.title }}</span>
+          <span>{{ t(tab.title) }}</span>
           <el-icon v-if="!tab.affix" class="close-icon" @click.stop="closeTab(tab)"><Close /></el-icon>
         </div>
       </div>
@@ -20,8 +20,10 @@
 <script setup>
 import { watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()

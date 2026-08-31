@@ -98,7 +98,10 @@ export default {
 
   // === Dashboard ===
   dashboard: {
+    greetingDawn: 'Good dawn',
     greetingMorning: 'Good morning',
+    greetingForenoon: 'Good morning',
+    greetingNoon: 'Good noon',
     greetingAfternoon: 'Good afternoon',
     greetingEvening: 'Good evening',
     greeting: 'Hello',
@@ -106,30 +109,62 @@ export default {
     dataVolume: 'Data Volume (Today)',
     queryResponse: 'Query Response',
     onlineConcurrent: 'Online Concurrency',
-    todayIn: 'Inbound Today',
-    todayOut: 'Outbound Today',
-    lowStock: 'Low Stock',
-    inTransit: 'In-transit',
-    abnormal: 'Exceptions',
-    avgRate: 'Avg Utilization',
-    trendUp: 'vs yesterday',
-    trendDown: 'vs yesterday',
+    // KPI units
+    unitItem: '',
+    unitOrder: '',
+    unitRecord: '',
+    unitPercent: '%',
+    // Trend
+    trendCompare: 'vs yesterday',
+    // Charts
     inOutTrend: 'Inbound/Outbound (7d)',
+    inLegend: 'Inbound',
+    outLegend: 'Outbound',
     transportMode: 'Transport Mode',
     alertTrend: 'Alert Trend (7d)',
+    alertLegend: 'Alerts',
     topCustomers: 'Top Customers (10K CNY)',
+    tagFinance: 'Sales & WMS',
+    tagHC002: 'HC002 Sources',
+    tagAlertAccuracy: '92% Accuracy',
+    tagYearTotal: 'YTD',
+    // Warehouse
     warehouseStatus: 'Warehouse Status',
-    inTransitShipments: 'Active Shipments',
     details: 'Details',
-    track: 'Track',
-    warehouse: 'Warehouse',
     temp: 'Temp',
     humidity: 'Humidity',
-    status: 'Status',
+    // Shipments table
+    inTransitShipments: 'Active Shipments',
+    track: 'Track',
     trackingNo: 'Tracking',
     route: 'Route',
+    mode: 'Mode',
     progress: 'Progress',
-    eta: 'ETA'
+    status: 'Status',
+    eta: 'ETA',
+    admin: 'Admin'
+  },
+
+  // === Transport mode ===
+  transport: {
+    road: 'Road',
+    air: 'Air',
+    sea: 'Sea'
+  },
+
+  // === Shipment status ===
+  shipmentStatus: {
+    inTransit: 'In Transit',
+    delivered: 'Delivered',
+    pendingShip: 'Pending',
+    pendingAssign: 'Unassigned'
+  },
+
+  // === Warehouse type ===
+  warehouseType: {
+    center: 'Center',
+    region: 'Regional',
+    front: 'Frontier'
   },
 
   // === Roles ===

@@ -1,13 +1,15 @@
 <template>
   <el-breadcrumb separator="/">
-    <el-breadcrumb-item v-for="(item, idx) in levels" :key="idx">{{ item }}</el-breadcrumb-item>
+    <el-breadcrumb-item v-for="(item, idx) in levels" :key="idx">{{ t(item) }}</el-breadcrumb-item>
   </el-breadcrumb>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const route = useRoute()
 const levels = computed(() => {
   const list = []
